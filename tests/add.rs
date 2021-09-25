@@ -2,8 +2,8 @@ use rfraction::Fraction;
 
 #[test]
 fn with_usual_nums_add_works() {
-  let first = Fraction::new(10, 140, false);
-  let second = Fraction::new(15, 280, false);
+  let first = Fraction::<u128>::new(10, 140, false);
+  let second = Fraction::<u128>::new(15, 280, false);
 
   let result = first.add(&second);
 
