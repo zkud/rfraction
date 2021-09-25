@@ -2,12 +2,12 @@ use rfraction::Fraction;
 
 #[test]
 fn with_usual_nums_mul_works() {
-    let first = Fraction::new(13, 17, true);
-    let second = Fraction::new(18, 19, false);
+  let first = Fraction::new(13, 17, true);
+  let second = Fraction::new(18, 19, false);
 
-    let result = first.mul(&second);
+  let result = first.mul(&second);
 
-    assert!(result.is_negative());
-    assert_eq!(result.numerator(), 234);
-    assert_eq!(result.denominator(), 323);
+  assert!(result.is_negative());
+  assert_eq!(result.numerator(), 234);
+  assert_eq!(result.denominator(), 323);
 }
