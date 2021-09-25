@@ -9,11 +9,13 @@ pub trait UnsignedNumber:
   + Sized
   + From<u8>
   + PartialOrd
-  + ops::Add<Output=Self>
-  + ops::Sub<Output=Self>
-  + ops::Mul<Output=Self>
-  + ops::Div<Output=Self>
-  + ops::Rem<Output=Self> {}
+  + ops::Add<Output = Self>
+  + ops::Sub<Output = Self>
+  + ops::Mul<Output = Self>
+  + ops::Div<Output = Self>
+  + ops::Rem<Output = Self>
+{
+}
 
 impl UnsignedNumber for u128 {}
 impl UnsignedNumber for u64 {}
