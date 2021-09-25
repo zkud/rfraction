@@ -1,7 +1,7 @@
 use std::fmt;
 
 #[derive(Clone)]
-struct Fraction {
+pub struct Fraction {
   numerator: u128,
   denominator: u128,
   is_negative: bool,
@@ -100,7 +100,8 @@ impl Fraction {
         unified_self.numerator + unified_other.numerator,
         unified_self.denominator,
         unified_self.is_negative,
-      ).simplify();
+      )
+      .simplify();
     }
 
     if unified_self.is_abs_equal(&unified_other) {
@@ -112,13 +113,15 @@ impl Fraction {
         unified_self.numerator - unified_other.numerator,
         unified_self.denominator,
         unified_self.is_negative,
-      ).simplify()
+      )
+      .simplify()
     } else {
       Fraction::new(
         unified_other.numerator - unified_self.numerator,
         unified_self.denominator,
         unified_other.is_negative,
-      ).simplify()
+      )
+      .simplify()
     }
   }
 
@@ -136,10 +139,10 @@ impl Fraction {
     }
 
     if self.is_negative_infinity() && other.is_positive_infinity() {
-      return Some(Fraction::new_nan())
+      return Some(Fraction::new_nan());
     }
     if self.is_positive_infinity() && other.is_negative_infinity() {
-      return Some(Fraction::new_nan())
+      return Some(Fraction::new_nan());
     }
 
     if self.is_infinity() || other.is_infinity() {
@@ -220,7 +223,11 @@ impl Fraction {
     }
 
     let gcd = self.find_gcd(self.numerator, self.denominator);
-    Fraction::new(self.numerator / gcd, self.denominator / gcd, self.is_negative)
+    Fraction::new(
+      self.numerator / gcd,
+      self.denominator / gcd,
+      self.is_negative,
+    )
   }
 
   #[inline]
@@ -266,48 +273,5 @@ impl Fraction {
         other.mul_with_number(self.denominator as i128),
       ),
     }
-  }
-}
-
-#[cfg(test)]
-mod tests {
-  use super::Fraction;
-
-  #[test]
-  fn new_works() {
-    let number = Fraction::new(123, 321, false);
-    assert_eq!(number.numerator(), 123);
-    assert_eq!(number.denominator(), 321);
-    assert!(number.is_positive());
-
-    let number = Fraction::new(777, 888, true);
-    assert_eq!(number.numerator(), 777);
-    assert_eq!(number.denominator(), 888);
-    assert!(number.is_negative());
-  }
-
-  #[test]
-  fn with_usual_nums_add_works() {
-    let first = Fraction::new(10, 140, false);
-    let second = Fraction::new(15, 280, false);
-
-    let result = first.add(&second);
-
-    assert!(result.is_positive());
-    assert_eq!(result.numerator(), 1);
-    assert_eq!(result.denominator(), 8);
-  }
-
-  #[test]
-  fn with_usual_nums_mul_works() {
-    let first = Fraction::new(13, 17, true);
-    let second = Fraction::new(18, 19, false);
-
-    let result = first.mul(&second);
-
-    assert!(result.is_negative());
-    assert_eq!(result.numerator(), 234);
-    assert_eq!(result.denominator(), 323);
-
   }
 }
