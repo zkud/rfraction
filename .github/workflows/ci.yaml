@@ -23,12 +23,13 @@ jobs:
   build:
     strategy:
       matrix:
-        - host: macos-latest
-        - host: windows-latest
-        - host: ubuntu-latest
+        settings:
+          - host: macos-latest
+          - host: windows-latest
+          - host: ubuntu-latest
 
-    name: Build on ${{ matrix.host }}
-    runs-on: ${{ matrix.host }}
+    name: Build on ${{ matrix.settings.host }}
+    runs-on: ${{ matrix.settings.host }}
 
     steps:
       - uses: actions/checkout@v2
@@ -40,12 +41,13 @@ jobs:
 
     strategy:
       matrix:
-        - host: macos-latest
-        - host: windows-latest
-        - host: ubuntu-latest
+        settings:
+          - host: macos-latest
+          - host: windows-latest
+          - host: ubuntu-latest
 
-    name: Test on ${{ matrix.host }}
-    runs-on: ${{ matrix.host }}
+    name: Test on ${{ matrix.settings.host }}
+    runs-on: ${{ matrix.settings.host }}
 
     steps:
       - uses: actions/checkout@v2
