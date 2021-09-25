@@ -1,0 +1,53 @@
+name: CI
+
+on: [ push, pull_request ]
+
+jobs:
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install dependencies
+      run: |
+        rustup component add rustfmt
+        rustup component add clippy
+        rustfmt --version
+        npm i
+    - name: Formatting lint
+      run: rustfmt ./src/lib.rs --check
+    - name: Semantic lint
+      run: cargo clippy
+
+  build:
+    strategy:
+      matrix:
+        - host: macos-latest
+        - host: windows-latest
+        - host: ubuntu-latest
+
+    name: Build on ${{ matrix.host }}
+    runs-on: ${{ matrix.host }}
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build
+        run: cargo build
+
+  test:
+    needs: build
+
+    strategy:
+      matrix:
+        - host: macos-latest
+        - host: windows-latest
+        - host: ubuntu-latest
+
+    name: Test on ${{ matrix.host }}
+    runs-on: ${{ matrix.host }}
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Test
+        run: cargo test
