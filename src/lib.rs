@@ -6,7 +6,6 @@ pub trait UnsignedNumber:
   + Copy
   + Clone
   + PartialEq
-  + Sized
   + From<u8>
   + PartialOrd
   + ops::Add<Output = Self>
@@ -45,6 +44,22 @@ impl<N: UnsignedNumber> Fraction<N> {
       numerator,
       denominator,
       is_negative,
+    }
+  }
+
+  pub fn new_positive_infinity() -> Fraction<N> {
+    Fraction {
+      numerator: N::from(1),
+      denominator: N::from(0),
+      is_negative: false,
+    }
+  }
+
+  pub fn new_negative_infinity() -> Fraction<N> {
+    Fraction {
+      numerator: N::from(1),
+      denominator: N::from(0),
+      is_negative: true,
     }
   }
 
@@ -131,13 +146,6 @@ impl<N: UnsignedNumber> Fraction<N> {
 
   #[inline]
   fn process_rare_numbers_for_add(&self, other: &Fraction<N>) -> Option<Fraction<N>> {
-    if other.is_zero() {
-      return Some(self.clone());
-    }
-    if self.is_zero() {
-      return Some(other.clone());
-    }
-
     if self.is_nan() || other.is_nan() {
       return Some(Fraction::new_nan());
     }
@@ -149,7 +157,17 @@ impl<N: UnsignedNumber> Fraction<N> {
       return Some(Fraction::new_nan());
     }
 
-    if self.is_infinity() || other.is_infinity() {
+    if self.is_infinity() {
+      return Some(self.clone());
+    }
+    if other.is_infinity() {
+      return Some(other.clone());
+    }
+
+    if self.is_zero() {
+      return Some(other.clone());
+    }
+    if other.is_zero() {
       return Some(self.clone());
     }
 
@@ -161,12 +179,44 @@ impl<N: UnsignedNumber> Fraction<N> {
   }
 
   pub fn mul(&self, other: &Fraction<N>) -> Fraction<N> {
+    if let Some(result) = self.process_rare_numbers_for_mul(&other) {
+      return result; 
+    }
+
     Fraction::new(
       self.numerator * other.numerator,
       self.denominator * other.denominator,
       self.is_negative ^ other.is_negative,
     )
     .simplify()
+  }
+
+  #[inline]
+  fn process_rare_numbers_for_mul(&self, other: &Fraction<N>) -> Option<Fraction<N>> {
+    if self.is_nan() || other.is_nan() {
+      return Some(Fraction::new_nan());
+    }
+
+    if self.is_zero() && other.is_infinity() {
+      return Some(Fraction::new_nan());
+    }
+    if self.is_infinity() && other.is_zero() {
+      return Some(Fraction::new_nan());
+    }
+
+    if self.is_infinity() || other.is_infinity() {
+      if self.is_negative() ^ other.is_negative() {
+        return Some(Fraction::new_negative_infinity());
+      } else {
+        return Some(Fraction::new_positive_infinity());
+      }
+    }
+
+    if self.is_zero() || other.is_zero() {
+      return Some(Fraction::new_zero());
+    }
+
+    None
   }
 
   pub fn div(&self, other: &Fraction<N>) -> Fraction<N> {
