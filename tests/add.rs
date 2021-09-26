@@ -50,7 +50,7 @@ fn with_usual_u16_nums_add_works() {
 
 #[test]
 fn with_usual_u8_nums_add_works() {
-  let first = Fraction::<u8>::new(10, 10, false);
+  let first = Fraction::<u8>::new(20, 20, false);
   let second = Fraction::<u8>::new(15, 10, false);
 
   let result = first.add(&second);
