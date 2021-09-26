@@ -14,12 +14,34 @@ pub trait UnsignedNumber:
   + ops::Div<Output = Self>
   + ops::Rem<Output = Self>
 {
+  fn checked_add(self, other: Self) -> Option<Self>;
+  fn checked_sub(self, other: Self) -> Option<Self>;
+  fn checked_mul(self, other: Self) -> Option<Self>;
+  fn checked_div(self, other: Self) -> Option<Self>;
+  fn checked_rem(self, other: Self) -> Option<Self>;
 }
 
-impl UnsignedNumber for u128 {}
-impl UnsignedNumber for u64 {}
-impl UnsignedNumber for u32 {}
-impl UnsignedNumber for u8 {}
+impl UnsignedNumber for u128 {
+  fn checked_add(self, other: Self) -> Option<Self> {
+    self.checked_add(other)
+  }
+
+  fn checked_mul(self, other: Self) -> Option<Self> {
+    self.checked_mul(other)
+  }
+
+  fn checked_div(self, other: Self) -> Option<Self> {
+    self.checked_div(other)
+  }
+
+  fn checked_sub(self, other: Self) -> Option<Self> {
+    self.checked_sub(other)
+  }
+
+  fn checked_rem(self, other: Self) -> Option<Self> {
+    self.checked_rem(other)
+  }
+}
 
 #[derive(Clone)]
 pub struct Fraction<N: UnsignedNumber> {
@@ -115,12 +137,16 @@ impl<N: UnsignedNumber> Fraction<N> {
     let (unified_self, unified_other) = self.unify(other);
 
     if unified_self.is_negative == unified_other.is_negative {
-      return Fraction::new(
-        unified_self.numerator + unified_other.numerator,
-        unified_self.denominator,
-        unified_self.is_negative,
-      )
-      .simplify();
+      if let Some(num_sum) = unified_self.numerator().checked_add(unified_other.numerator()) {
+        return Fraction::new(
+          num_sum,
+          unified_self.denominator,
+          unified_self.is_negative,
+        )
+        .simplify();
+      } else {
+        return Fraction::new_nan();
+      }
     }
 
     if unified_self.is_abs_equal(&unified_other) {
@@ -183,12 +209,21 @@ impl<N: UnsignedNumber> Fraction<N> {
       return result;
     }
 
-    Fraction::new(
-      self.numerator * other.numerator,
-      self.denominator * other.denominator,
-      self.is_negative ^ other.is_negative,
-    )
-    .simplify()
+    let new_numerator = self.numerator().checked_mul(other.numerator());
+    let new_denominator = self.denominator().checked_mul(other.denominator());
+
+    if let Some(numerator) = new_numerator {
+      if let Some(denominator) = new_denominator {
+        return Fraction::new(
+          numerator,
+          denominator,
+          self.is_negative ^ other.is_negative,
+        )
+        .simplify();
+      }
+    }
+
+    Fraction::new_nan()
   }
 
   #[inline]
@@ -253,11 +288,20 @@ impl<N: UnsignedNumber> Fraction<N> {
 
   #[inline]
   fn mul_with_number(&self, number: N) -> Fraction<N> {
-    Fraction::new(
-      self.numerator * number,
-      self.denominator * number,
-      self.is_negative,
-    )
+    let new_numerator = self.numerator().checked_mul(number);
+    let new_denominator = self.denominator().checked_mul(number);
+
+    if let Some(numerator) = new_numerator {
+      if let Some(denominator) = new_denominator {
+        return Fraction::new(
+          numerator,
+          denominator,
+          self.is_negative,
+        );
+      }
+    }
+
+    Fraction::new_nan()
   }
 
   #[inline]
