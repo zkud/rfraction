@@ -15,10 +15,7 @@ pub trait UnsignedNumber:
   + ops::Rem<Output = Self>
 {
   fn checked_add(self, other: Self) -> Option<Self>;
-  fn checked_sub(self, other: Self) -> Option<Self>;
   fn checked_mul(self, other: Self) -> Option<Self>;
-  fn checked_div(self, other: Self) -> Option<Self>;
-  fn checked_rem(self, other: Self) -> Option<Self>;
 }
 
 impl UnsignedNumber for u128 {
@@ -28,18 +25,6 @@ impl UnsignedNumber for u128 {
 
   fn checked_mul(self, other: Self) -> Option<Self> {
     self.checked_mul(other)
-  }
-
-  fn checked_div(self, other: Self) -> Option<Self> {
-    self.checked_div(other)
-  }
-
-  fn checked_sub(self, other: Self) -> Option<Self> {
-    self.checked_sub(other)
-  }
-
-  fn checked_rem(self, other: Self) -> Option<Self> {
-    self.checked_rem(other)
   }
 }
 
@@ -51,18 +36,6 @@ impl UnsignedNumber for u64 {
   fn checked_mul(self, other: Self) -> Option<Self> {
     self.checked_mul(other)
   }
-
-  fn checked_div(self, other: Self) -> Option<Self> {
-    self.checked_div(other)
-  }
-
-  fn checked_sub(self, other: Self) -> Option<Self> {
-    self.checked_sub(other)
-  }
-
-  fn checked_rem(self, other: Self) -> Option<Self> {
-    self.checked_rem(other)
-  }
 }
 
 impl UnsignedNumber for u32 {
@@ -72,18 +45,6 @@ impl UnsignedNumber for u32 {
 
   fn checked_mul(self, other: Self) -> Option<Self> {
     self.checked_mul(other)
-  }
-
-  fn checked_div(self, other: Self) -> Option<Self> {
-    self.checked_div(other)
-  }
-
-  fn checked_sub(self, other: Self) -> Option<Self> {
-    self.checked_sub(other)
-  }
-
-  fn checked_rem(self, other: Self) -> Option<Self> {
-    self.checked_rem(other)
   }
 }
 
@@ -95,18 +56,6 @@ impl UnsignedNumber for u16 {
   fn checked_mul(self, other: Self) -> Option<Self> {
     self.checked_mul(other)
   }
-
-  fn checked_div(self, other: Self) -> Option<Self> {
-    self.checked_div(other)
-  }
-
-  fn checked_sub(self, other: Self) -> Option<Self> {
-    self.checked_sub(other)
-  }
-
-  fn checked_rem(self, other: Self) -> Option<Self> {
-    self.checked_rem(other)
-  }
 }
 
 impl UnsignedNumber for u8 {
@@ -116,17 +65,5 @@ impl UnsignedNumber for u8 {
 
   fn checked_mul(self, other: Self) -> Option<Self> {
     self.checked_mul(other)
-  }
-
-  fn checked_div(self, other: Self) -> Option<Self> {
-    self.checked_div(other)
-  }
-
-  fn checked_sub(self, other: Self) -> Option<Self> {
-    self.checked_sub(other)
-  }
-
-  fn checked_rem(self, other: Self) -> Option<Self> {
-    self.checked_rem(other)
   }
 }
