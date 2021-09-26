@@ -137,13 +137,12 @@ impl<N: UnsignedNumber> Fraction<N> {
     let (unified_self, unified_other) = self.unify(other);
 
     if unified_self.is_negative == unified_other.is_negative {
-      if let Some(num_sum) = unified_self.numerator().checked_add(unified_other.numerator()) {
-        return Fraction::new(
-          num_sum,
-          unified_self.denominator,
-          unified_self.is_negative,
-        )
-        .simplify();
+      if let Some(num_sum) = unified_self
+        .numerator()
+        .checked_add(unified_other.numerator())
+      {
+        return Fraction::new(num_sum, unified_self.denominator, unified_self.is_negative)
+          .simplify();
       } else {
         return Fraction::new_nan();
       }
@@ -214,12 +213,8 @@ impl<N: UnsignedNumber> Fraction<N> {
 
     if let Some(numerator) = new_numerator {
       if let Some(denominator) = new_denominator {
-        return Fraction::new(
-          numerator,
-          denominator,
-          self.is_negative ^ other.is_negative,
-        )
-        .simplify();
+        return Fraction::new(numerator, denominator, self.is_negative ^ other.is_negative)
+          .simplify();
       }
     }
 
@@ -293,11 +288,7 @@ impl<N: UnsignedNumber> Fraction<N> {
 
     if let Some(numerator) = new_numerator {
       if let Some(denominator) = new_denominator {
-        return Fraction::new(
-          numerator,
-          denominator,
-          self.is_negative,
-        );
+        return Fraction::new(numerator, denominator, self.is_negative);
       }
     }
 
