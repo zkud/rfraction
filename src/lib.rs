@@ -180,7 +180,7 @@ impl<N: UnsignedNumber> Fraction<N> {
 
   pub fn mul(&self, other: &Fraction<N>) -> Fraction<N> {
     if let Some(result) = self.process_rare_numbers_for_mul(&other) {
-      return result; 
+      return result;
     }
 
     Fraction::new(
