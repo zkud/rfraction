@@ -1,84 +1,13 @@
 use super::unsigned_number::UnsignedNumber;
-use std::fmt;
 
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 pub struct Fraction<N: UnsignedNumber> {
   numerator: N,
   denominator: N,
   is_negative: bool,
 }
 
-impl<N: UnsignedNumber> fmt::Display for Fraction<N> {
-  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-    if self.is_negative {
-      write!(f, "-{}/{}", self.numerator, self.denominator)
-    } else {
-      write!(f, "{}/{}", self.numerator, self.denominator)
-    }
-  }
-}
-
 impl<N: UnsignedNumber> Fraction<N> {
-  pub fn new(numerator: N, denominator: N, is_negative: bool) -> Fraction<N> {
-    Fraction {
-      numerator,
-      denominator,
-      is_negative,
-    }
-  }
-
-  pub fn new_positive_infinity() -> Fraction<N> {
-    Fraction {
-      numerator: N::from(1),
-      denominator: N::from(0),
-      is_negative: false,
-    }
-  }
-
-  pub fn new_negative_infinity() -> Fraction<N> {
-    Fraction {
-      numerator: N::from(1),
-      denominator: N::from(0),
-      is_negative: true,
-    }
-  }
-
-  pub fn new_zero() -> Fraction<N> {
-    Fraction {
-      numerator: N::from(0),
-      denominator: N::from(1),
-      is_negative: false,
-    }
-  }
-
-  pub fn new_natural(value: N) -> Fraction<N> {
-    Fraction {
-      numerator: value,
-      denominator: N::from(1),
-      is_negative: false,
-    }
-  }
-
-  pub fn new_nan() -> Fraction<N> {
-    Fraction::new(N::from(0), N::from(0), false)
-  }
-
-  pub fn numerator(&self) -> N {
-    self.numerator
-  }
-
-  pub fn denominator(&self) -> N {
-    self.denominator
-  }
-
-  pub fn is_negative(&self) -> bool {
-    self.is_negative
-  }
-
-  pub fn is_positive(&self) -> bool {
-    !self.is_negative
-  }
-
   pub fn abs(&self) -> Fraction<N> {
     Fraction::new(self.numerator, self.denominator, false)
   }
@@ -215,6 +144,22 @@ impl<N: UnsignedNumber> Fraction<N> {
     Fraction::new(self.denominator, self.numerator, self.is_negative)
   }
 
+  pub fn numerator(&self) -> N {
+    self.numerator
+  }
+
+  pub fn denominator(&self) -> N {
+    self.denominator
+  }
+
+  pub fn is_negative(&self) -> bool {
+    self.is_negative
+  }
+
+  pub fn is_positive(&self) -> bool {
+    !self.is_negative
+  }
+
   pub fn is_natural(&self) -> bool {
     !self.is_negative && self.numerator != N::from(0) && self.denominator == N::from(1)
   }
@@ -239,18 +184,52 @@ impl<N: UnsignedNumber> Fraction<N> {
     self.numerator == N::from(0) && self.denominator != N::from(0)
   }
 
-  #[inline]
-  fn mul_with_number(&self, number: N) -> Fraction<N> {
-    let new_numerator = self.numerator().checked_mul(number);
-    let new_denominator = self.denominator().checked_mul(number);
-
-    if let Some(numerator) = new_numerator {
-      if let Some(denominator) = new_denominator {
-        return Fraction::new(numerator, denominator, self.is_negative);
-      }
+  pub fn new(numerator: N, denominator: N, is_negative: bool) -> Fraction<N> {
+    Fraction {
+      numerator,
+      denominator,
+      is_negative,
     }
+  }
 
-    Fraction::new_nan()
+  pub fn new_positive_infinity() -> Fraction<N> {
+    Fraction {
+      numerator: N::from(1),
+      denominator: N::from(0),
+      is_negative: false,
+    }
+  }
+
+  pub fn new_negative_infinity() -> Fraction<N> {
+    Fraction {
+      numerator: N::from(1),
+      denominator: N::from(0),
+      is_negative: true,
+    }
+  }
+
+  pub fn new_zero() -> Fraction<N> {
+    Fraction {
+      numerator: N::from(0),
+      denominator: N::from(1),
+      is_negative: false,
+    }
+  }
+
+  pub fn new_natural(value: N) -> Fraction<N> {
+    Fraction {
+      numerator: value,
+      denominator: N::from(1),
+      is_negative: false,
+    }
+  }
+
+  pub fn new_nan() -> Fraction<N> {
+    Fraction {
+      numerator: N::from(0),
+      denominator: N::from(0),
+      is_negative: false,
+    }
   }
 
   #[inline]
@@ -314,5 +293,19 @@ impl<N: UnsignedNumber> Fraction<N> {
         other.mul_with_number(self.denominator),
       ),
     }
+  }
+
+  #[inline]
+  fn mul_with_number(&self, number: N) -> Fraction<N> {
+    let new_numerator = self.numerator().checked_mul(number);
+    let new_denominator = self.denominator().checked_mul(number);
+
+    if let Some(numerator) = new_numerator {
+      if let Some(denominator) = new_denominator {
+        return Fraction::new(numerator, denominator, self.is_negative);
+      }
+    }
+
+    Fraction::new_nan()
   }
 }
