@@ -5,7 +5,7 @@ fn with_usual_u128_nums_add_works() {
   let first = Fraction::<u128>::new(10, 140, false);
   let second = Fraction::<u128>::new(15, 280, false);
 
-  let result = first.add(&second);
+  let result = first + second;
 
   assert!(result.is_positive());
   assert_eq!(result.numerator(), 1);
@@ -17,7 +17,7 @@ fn with_usual_u64_nums_add_works() {
   let first = Fraction::<u64>::new(10, 140, false);
   let second = Fraction::<u64>::new(15, 280, false);
 
-  let result = first.add(&second);
+  let result = first + second;
 
   assert!(result.is_positive());
   assert_eq!(result.numerator(), 1);
@@ -29,7 +29,7 @@ fn with_usual_u32_nums_add_works() {
   let first = Fraction::<u32>::new(10, 140, false);
   let second = Fraction::<u32>::new(15, 280, false);
 
-  let result = first.add(&second);
+  let result = first + second;
 
   assert!(result.is_positive());
   assert_eq!(result.numerator(), 1);
@@ -41,7 +41,7 @@ fn with_usual_u16_nums_add_works() {
   let first = Fraction::<u16>::new(10, 140, false);
   let second = Fraction::<u16>::new(15, 280, false);
 
-  let result = first.add(&second);
+  let result = first + second;
 
   assert!(result.is_positive());
   assert_eq!(result.numerator(), 1);
@@ -53,7 +53,7 @@ fn with_usual_u8_nums_add_works() {
   let first = Fraction::<u8>::new(20, 20, false);
   let second = Fraction::<u8>::new(15, 10, false);
 
-  let result = first.add(&second);
+  let result = first + second;
 
   assert!(result.is_positive());
   assert_eq!(result.numerator(), 5);

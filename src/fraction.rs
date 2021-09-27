@@ -1,6 +1,10 @@
 use super::unsigned_number::UnsignedNumber;
+use std::cmp;
+use std::fmt;
+use std::hash;
+use std::ops;
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Eq, Ord, hash::Hash)]
 pub struct Fraction<N: UnsignedNumber> {
   numerator: N,
   denominator: N,
@@ -9,11 +13,11 @@ pub struct Fraction<N: UnsignedNumber> {
 
 impl<N: UnsignedNumber> Fraction<N> {
   pub fn abs(&self) -> Fraction<N> {
-    Fraction::new(self.numerator, self.denominator, false)
+    Fraction::new(self.numerator, self.denominator, false).simplify()
   }
 
   pub fn neg(&self) -> Fraction<N> {
-    Fraction::new(self.numerator, self.denominator, !self.is_negative)
+    Fraction::new(self.numerator, self.denominator, !self.is_negative).simplify()
   }
 
   pub fn add(&self, other: &Fraction<N>) -> Fraction<N> {
@@ -70,17 +74,17 @@ impl<N: UnsignedNumber> Fraction<N> {
     }
 
     if self.is_infinity() {
-      return Some(self.clone());
+      return Some(self.clone().simplify());
     }
     if other.is_infinity() {
-      return Some(other.clone());
+      return Some(other.clone().simplify());
     }
 
     if self.is_zero() {
-      return Some(other.clone());
+      return Some(other.clone().simplify());
     }
     if other.is_zero() {
-      return Some(self.clone());
+      return Some(self.clone().simplify());
     }
 
     None
@@ -141,7 +145,7 @@ impl<N: UnsignedNumber> Fraction<N> {
   }
 
   pub fn reverse(&self) -> Fraction<N> {
-    Fraction::new(self.denominator, self.numerator, self.is_negative)
+    Fraction::new(self.denominator, self.numerator, self.is_negative).simplify()
   }
 
   pub fn numerator(&self) -> N {
@@ -190,6 +194,7 @@ impl<N: UnsignedNumber> Fraction<N> {
       denominator,
       is_negative,
     }
+    .simplify()
   }
 
   pub fn new_positive_infinity() -> Fraction<N> {
@@ -234,7 +239,22 @@ impl<N: UnsignedNumber> Fraction<N> {
 
   #[inline]
   fn simplify(mut self) -> Fraction<N> {
-    if self.is_infinity() || self.is_zero() || self.is_nan() {
+    if self.is_infinity() {
+      self.numerator = N::from(1);
+      self.denominator = N::from(0);
+      return self;
+    }
+
+    if self.is_zero() {
+      self.numerator = N::from(0);
+      self.denominator = N::from(1);
+      return self;
+    }
+
+    if self.is_nan() {
+      self.numerator = N::from(0);
+      self.denominator = N::from(0);
+      self.is_negative = false;
       return self;
     }
 
@@ -306,5 +326,182 @@ impl<N: UnsignedNumber> Fraction<N> {
     }
 
     Fraction::new_nan()
+  }
+}
+
+impl<N: UnsignedNumber> PartialEq for Fraction<N> {
+  fn eq(&self, other: &Self) -> bool {
+    let (unified_self, unified_other) = self.unify(other);
+
+    unified_self.numerator() == unified_other.numerator()
+      && unified_self.denominator() == unified_other.denominator()
+      && unified_self.is_negative() == unified_other.is_negative()
+  }
+}
+
+impl<N: UnsignedNumber> PartialOrd for Fraction<N> {
+  fn partial_cmp(&self, other: &Self) -> Option<cmp::Ordering> {
+    if self.is_nan() || other.is_nan() {
+      return None;
+    }
+
+    match (self.is_infinity(), other.is_infinity()) {
+      (true, false) => {
+        if self.is_positive() {
+          return Some(cmp::Ordering::Greater);
+        } else {
+          return Some(cmp::Ordering::Less);
+        }
+      }
+      (false, true) => {
+        if other.is_negative() {
+          return Some(cmp::Ordering::Greater);
+        } else {
+          return Some(cmp::Ordering::Less);
+        }
+      }
+      (true, true) => {
+        if self.is_positive() && other.is_negative() {
+          return Some(cmp::Ordering::Greater);
+        }
+        if self.is_negative() && other.is_positive() {
+          return Some(cmp::Ordering::Less);
+        }
+        return None;
+      }
+      _ => (),
+    }
+
+    let (unified_self, unified_other) = self.unify(other);
+
+    if unified_self.is_nan() || unified_other.is_nan() {
+      return None;
+    }
+
+    match (unified_self.is_negative(), unified_other.is_negative()) {
+      (true, false) => return Some(cmp::Ordering::Less),
+      (false, true) => return Some(cmp::Ordering::Greater),
+      _ => {
+        if unified_self.is_negative() {
+          if unified_self.numerator() > unified_other.denominator() {
+            return Some(cmp::Ordering::Less);
+          }
+
+          if unified_self.numerator() < unified_other.denominator() {
+            return Some(cmp::Ordering::Greater);
+          }
+        } else {
+          if unified_self.numerator() > unified_other.denominator() {
+            return Some(cmp::Ordering::Greater);
+          }
+
+          if unified_self.numerator() < unified_other.denominator() {
+            return Some(cmp::Ordering::Less);
+          }
+        }
+
+        return Some(cmp::Ordering::Equal);
+      }
+    }
+  }
+}
+
+impl<N: UnsignedNumber> fmt::Debug for Fraction<N> {
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    f.debug_struct("Fraction")
+      .field("numerator", &self.numerator())
+      .field("denominator", &self.denominator())
+      .field("is_negative", &self.is_negative())
+      .finish()
+  }
+}
+
+impl<N: UnsignedNumber> fmt::Display for Fraction<N> {
+  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    if self.is_positive_infinity() {
+      return write!(f, "+infinity");
+    }
+
+    if self.is_negative_infinity() {
+      return write!(f, "-infinity");
+    }
+
+    if self.is_nan() {
+      return write!(f, "nan");
+    }
+
+    if self.is_zero() {
+      return write!(f, "0");
+    }
+
+    write!(
+      f,
+      "{} {}/{}",
+      if self.is_positive() { '+' } else { '-' },
+      self.numerator(),
+      self.denominator()
+    )
+  }
+}
+
+impl<N: UnsignedNumber> Default for Fraction<N> {
+  fn default() -> Fraction<N> {
+    Fraction::new_zero()
+  }
+}
+
+impl<N: UnsignedNumber> ops::Add for Fraction<N> {
+  type Output = Self;
+
+  fn add(self, other: Self) -> Self {
+    (&self).add(&other)
+  }
+}
+
+impl<N: UnsignedNumber> ops::AddAssign for Fraction<N> {
+  fn add_assign(&mut self, other: Self) {
+    *self = self.add(&other)
+  }
+}
+
+impl<N: UnsignedNumber> ops::Sub for Fraction<N> {
+  type Output = Self;
+
+  fn sub(self, other: Self) -> Self {
+    (&self).sub(&other)
+  }
+}
+
+impl<N: UnsignedNumber> ops::SubAssign for Fraction<N> {
+  fn sub_assign(&mut self, other: Self) {
+    *self = self.sub(&other)
+  }
+}
+
+impl<N: UnsignedNumber> ops::Mul for Fraction<N> {
+  type Output = Self;
+
+  fn mul(self, other: Self) -> Self {
+    (&self).mul(&other)
+  }
+}
+
+impl<N: UnsignedNumber> ops::MulAssign for Fraction<N> {
+  fn mul_assign(&mut self, other: Self) {
+    *self = self.mul(&other)
+  }
+}
+
+impl<N: UnsignedNumber> ops::Div for Fraction<N> {
+  type Output = Self;
+
+  fn div(self, other: Self) -> Self {
+    (&self).div(&other)
+  }
+}
+
+impl<N: UnsignedNumber> ops::DivAssign for Fraction<N> {
+  fn div_assign(&mut self, other: Self) {
+    *self = self.div(&other)
   }
 }

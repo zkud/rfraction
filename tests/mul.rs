@@ -5,7 +5,7 @@ fn with_usual_u128_nums_mul_works() {
   let first = Fraction::<u128>::new(13, 17, true);
   let second = Fraction::<u128>::new(18, 19, false);
 
-  let result = first.mul(&second);
+  let result = first * second;
 
   assert!(result.is_negative());
   assert_eq!(result.numerator(), 234);
@@ -17,7 +17,7 @@ fn with_usual_u64_nums_mul_works() {
   let first = Fraction::<u64>::new(13, 17, true);
   let second = Fraction::<u64>::new(18, 19, false);
 
-  let result = first.mul(&second);
+  let result = first * second;
 
   assert!(result.is_negative());
   assert_eq!(result.numerator(), 234);
@@ -29,7 +29,7 @@ fn with_usual_u32_nums_mul_works() {
   let first = Fraction::<u32>::new(13, 17, true);
   let second = Fraction::<u32>::new(18, 19, false);
 
-  let result = first.mul(&second);
+  let result = first * second;
 
   assert!(result.is_negative());
   assert_eq!(result.numerator(), 234);
@@ -41,7 +41,7 @@ fn with_usual_u16_nums_mul_works() {
   let first = Fraction::<u16>::new(13, 17, true);
   let second = Fraction::<u16>::new(18, 19, false);
 
-  let result = first.mul(&second);
+  let result = first * second;
 
   assert!(result.is_negative());
   assert_eq!(result.numerator(), 234);
@@ -53,7 +53,7 @@ fn with_usual_u8_nums_mul_works() {
   let first = Fraction::<u16>::new(13, 11, true);
   let second = Fraction::<u16>::new(18, 19, false);
 
-  let result = first.mul(&second);
+  let result = first * second;
 
   assert!(result.is_negative());
   assert_eq!(result.numerator(), 234);

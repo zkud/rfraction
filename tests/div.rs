@@ -5,9 +5,7 @@ fn with_usual_u128_nums_mul_works() {
   let first = Fraction::<u128>::new(13, 17, true);
   let second = Fraction::<u128>::new(18, 19, false);
 
-  let result = first.div(&second);
+  let result = first / second;
 
-  assert!(result.is_negative());
-  assert_eq!(result.numerator(), 247);
-  assert_eq!(result.denominator(), 306);
+  assert_eq!(result, Fraction::new(247, 306, true));
 }

@@ -1,13 +1,16 @@
 use std::fmt;
+use std::hash;
 use std::ops;
 
 pub trait UnsignedNumber:
   fmt::Display
+  + fmt::Debug
   + Copy
   + Clone
-  + PartialEq
+  + Eq
   + From<u8>
-  + PartialOrd
+  + Ord
+  + hash::Hash
   + ops::Add<Output = Self>
   + ops::Sub<Output = Self>
   + ops::Mul<Output = Self>
