@@ -233,21 +233,20 @@ impl<N: UnsignedNumber> Fraction<N> {
   }
 
   #[inline]
-  fn simplify(&self) -> Fraction<N> {
+  fn simplify(mut self) -> Fraction<N> {
     if self.is_infinity() || self.is_zero() || self.is_nan() {
-      return self.clone();
+      return self;
     }
 
     if self.numerator == N::from(1) || self.denominator == N::from(1) {
-      return self.clone();
+      return self;
     }
 
     let gcd = self.find_gcd(self.numerator, self.denominator);
-    Fraction::new(
-      self.numerator / gcd,
-      self.denominator / gcd,
-      self.is_negative,
-    )
+    self.numerator = self.numerator / gcd;
+    self.denominator = self.denominator / gcd;
+
+    self
   }
 
   #[inline]
