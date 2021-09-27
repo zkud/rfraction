@@ -4,7 +4,7 @@ use std::fmt;
 use std::hash;
 use std::ops;
 
-#[derive(Clone, Eq, Ord, hash::Hash)]
+#[derive(Clone, Eq)]
 pub struct Fraction<N: UnsignedNumber> {
   numerator: N,
   denominator: N,
@@ -340,6 +340,16 @@ impl<N: UnsignedNumber> PartialEq for Fraction<N> {
     unified_self.numerator() == unified_other.numerator()
       && unified_self.denominator() == unified_other.denominator()
       && unified_self.is_negative() == unified_other.is_negative()
+  }
+}
+
+impl<N: UnsignedNumber> hash::Hash for Fraction<N> {
+  fn hash<H: hash::Hasher>(&self, state: &mut H) {
+    let simplified_self = self.clone().simplify();
+
+    simplified_self.numerator().hash(state);
+    simplified_self.denominator().hash(state);
+    simplified_self.is_negative().hash(state);
   }
 }
 
