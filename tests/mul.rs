@@ -139,3 +139,18 @@ fn with_overflowing_nums_mul_works() {
 
   assert!(result.is_nan());
 }
+
+#[test]
+fn with_operator_overloads_it_works() {
+  let first = Fraction::<u128>::new_natural(1);
+  let second = Fraction::<u128>::new_natural(18);
+
+  let mut result = &first * &second;
+  assert_eq!(result, Fraction::new_natural(18));
+
+  result *= &second;
+  assert_eq!(result, Fraction::new_natural(324));
+
+  result *= second;
+  assert_eq!(result, Fraction::new_natural(5832));
+}
