@@ -299,19 +299,19 @@ impl<N: UnsignedNumber> PartialOrd for Fraction<N> {
       (false, true) => return Some(cmp::Ordering::Greater),
       _ => {
         if unified_self.is_negative() {
-          if unified_self.numerator() > unified_other.denominator() {
+          if unified_self.numerator() > unified_other.numerator() {
             return Some(cmp::Ordering::Less);
           }
 
-          if unified_self.numerator() < unified_other.denominator() {
+          if unified_self.numerator() < unified_other.numerator() {
             return Some(cmp::Ordering::Greater);
           }
         } else {
-          if unified_self.numerator() > unified_other.denominator() {
+          if unified_self.numerator() > unified_other.numerator() {
             return Some(cmp::Ordering::Greater);
           }
 
-          if unified_self.numerator() < unified_other.denominator() {
+          if unified_self.numerator() < unified_other.numerator() {
             return Some(cmp::Ordering::Less);
           }
         }
