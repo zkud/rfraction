@@ -1,4 +1,5 @@
 use rfraction::Fraction;
+use rfraction::OperationErrorType;
 
 #[test]
 fn with_usual_u128_nums_mul_works() {
@@ -82,6 +83,22 @@ fn with_overflowing_nums_mul_works() {
   let second = Fraction::<u8>::new_natural(150);
 
   first.mul(&second);
+}
+
+#[test]
+fn its_possible_to_handle_an_overflow() {
+  let first = Fraction::<u8>::new_natural(150);
+  let second = Fraction::<u8>::new_natural(150);
+
+  match first.try_mul(&second) {
+    Err(error) if error.error_type() == OperationErrorType::Overflow => {
+      assert_eq!(
+        error.message(),
+        "Overflow during following operations: 150*150, 1*1"
+      );
+    }
+    _ => panic!("It's impossible to handle an overflow"),
+  }
 }
 
 #[test]

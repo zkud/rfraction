@@ -105,7 +105,13 @@ impl<N: UnsignedNumber> Fraction<N> {
     }
 
     Err(OperationError::new(
-      "Overflow during calculation of new numerator/denumenator",
+      format!(
+        "Overflow during following operations: {}*{}, {}*{}",
+        self.numerator(),
+        other.numerator(),
+        self.denominator(),
+        other.denominator(),
+      ),
       OperationErrorType::Overflow,
     ))
   }
