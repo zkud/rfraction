@@ -1,4 +1,5 @@
 use rfraction::Fraction;
+use rfraction::OperationErrorType;
 
 #[test]
 fn with_usual_u128_nums_add_works() {
@@ -86,6 +87,19 @@ fn with_overflowing_nums_add_works() {
   let second = Fraction::<u8>::new_natural(150);
 
   first.add(&second);
+}
+
+#[test]
+fn its_possible_to_handle_overflows() {
+  let first = Fraction::<u8>::new_natural(150);
+  let second = Fraction::<u8>::new_natural(150);
+
+  match first.try_add(&second) {
+    Err(error) if error.error_type() == OperationErrorType::Overflow => {
+      assert_eq!(error.message(), "Failed to add 150 and 150");
+    }
+    _ => panic!("It's impossible to handle an overflow")
+  }
 }
 
 #[test]

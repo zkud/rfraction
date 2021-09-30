@@ -52,7 +52,7 @@ impl<N: UnsignedNumber> Fraction<N> {
           format!(
             "Failed to add {} and {}",
             unified_self.numerator(),
-            unified_other.denominator()
+            unified_other.numerator(),
           ),
           OperationErrorType::Overflow,
         ));
