@@ -42,11 +42,7 @@ impl<N: UnsignedNumber> Fraction<N> {
         .numerator()
         .checked_add(unified_other.numerator())
       {
-        return Ok(Fraction::new(
-          unified_self.is_negative,
-          num_sum,
-          unified_self.denominator,
-        )?);
+        return Fraction::new(unified_self.is_negative, num_sum, unified_self.denominator);
       } else {
         return Err(OperationError::new(
           format!(
@@ -96,11 +92,7 @@ impl<N: UnsignedNumber> Fraction<N> {
 
     if let Some(numerator) = new_numerator {
       if let Some(denominator) = new_denominator {
-        return Ok(Fraction::new(
-          self.is_negative ^ other.is_negative,
-          numerator,
-          denominator,
-        )?);
+        return Fraction::new(self.is_negative ^ other.is_negative, numerator, denominator);
       }
     }
 
@@ -215,16 +207,14 @@ impl<N: UnsignedNumber> Fraction<N> {
 
   #[inline]
   fn simplify(mut self) -> Fraction<N> {
-    if self.is_zero() {
-      self
-    } else {
+    if !self.is_zero() {
       let gcd = self.find_gcd(self.numerator, self.denominator);
 
       self.numerator = self.numerator / gcd;
       self.denominator = self.denominator / gcd;
-
-      self
     }
+
+    self
   }
 
   #[inline]
@@ -301,8 +291,8 @@ impl<N: UnsignedNumber> PartialOrd for Fraction<N> {
     let (unified_self, unified_other) = self.unify(other).unwrap();
 
     match (unified_self.is_negative(), unified_other.is_negative()) {
-      (true, false) => return Some(cmp::Ordering::Less),
-      (false, true) => return Some(cmp::Ordering::Greater),
+      (true, false) => Some(cmp::Ordering::Less),
+      (false, true) => Some(cmp::Ordering::Greater),
       _ => {
         if unified_self.is_negative() {
           if unified_self.numerator() > unified_other.numerator() {
@@ -322,7 +312,7 @@ impl<N: UnsignedNumber> PartialOrd for Fraction<N> {
           }
         }
 
-        return Some(cmp::Ordering::Equal);
+        Some(cmp::Ordering::Equal)
       }
     }
   }
