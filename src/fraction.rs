@@ -146,11 +146,19 @@ impl<N: UnsignedNumber> Fraction<N> {
   }
 
   pub fn is_negative(&self) -> bool {
-    self.is_negative
+    if self.is_zero() {
+      false
+    } else {
+      self.is_negative
+    }
   }
 
   pub fn is_positive(&self) -> bool {
-    !self.is_negative()
+    if self.is_zero() {
+      false
+    } else {
+      !self.is_negative
+    }
   }
 
   pub fn is_natural(&self) -> bool {
@@ -350,7 +358,7 @@ impl<N: UnsignedNumber> ops::Add for &Fraction<N> {
   type Output = Fraction<N>;
 
   fn add(self, other: Self) -> Fraction<N> {
-    self.try_add(other).unwrap()
+    self.add(other)
   }
 }
 
@@ -358,19 +366,19 @@ impl<N: UnsignedNumber> ops::Add for Fraction<N> {
   type Output = Self;
 
   fn add(self, other: Self) -> Self {
-    (&self).try_add(&other).unwrap()
+    (&self).add(&other)
   }
 }
 
 impl<N: UnsignedNumber> ops::AddAssign<&Self> for Fraction<N> {
   fn add_assign(&mut self, other: &Self) {
-    *self = self.try_add(other).unwrap()
+    *self = self.add(other)
   }
 }
 
 impl<N: UnsignedNumber> ops::AddAssign<Self> for Fraction<N> {
   fn add_assign(&mut self, other: Self) {
-    *self = self.try_add(&other).unwrap()
+    *self = self.add(&other)
   }
 }
 
@@ -378,7 +386,7 @@ impl<N: UnsignedNumber> ops::Sub for &Fraction<N> {
   type Output = Fraction<N>;
 
   fn sub(self, other: Self) -> Fraction<N> {
-    self.try_sub(other).unwrap()
+    self.sub(other)
   }
 }
 
@@ -386,19 +394,19 @@ impl<N: UnsignedNumber> ops::Sub for Fraction<N> {
   type Output = Self;
 
   fn sub(self, other: Self) -> Self {
-    (&self).try_sub(&other).unwrap()
+    (&self).sub(&other)
   }
 }
 
 impl<N: UnsignedNumber> ops::SubAssign<&Self> for Fraction<N> {
   fn sub_assign(&mut self, other: &Self) {
-    *self = self.try_sub(other).unwrap()
+    *self = self.sub(other)
   }
 }
 
 impl<N: UnsignedNumber> ops::SubAssign<Self> for Fraction<N> {
   fn sub_assign(&mut self, other: Self) {
-    *self = self.try_sub(&other).unwrap()
+    *self = self.sub(&other)
   }
 }
 
@@ -406,7 +414,7 @@ impl<N: UnsignedNumber> ops::Mul for &Fraction<N> {
   type Output = Fraction<N>;
 
   fn mul(self, other: Self) -> Fraction<N> {
-    self.try_mul(other).unwrap()
+    self.mul(other)
   }
 }
 
@@ -414,19 +422,19 @@ impl<N: UnsignedNumber> ops::Mul for Fraction<N> {
   type Output = Self;
 
   fn mul(self, other: Self) -> Self {
-    (&self).try_mul(&other).unwrap()
+    (&self).mul(&other)
   }
 }
 
 impl<N: UnsignedNumber> ops::MulAssign<&Self> for Fraction<N> {
   fn mul_assign(&mut self, other: &Self) {
-    *self = self.try_mul(other).unwrap()
+    *self = self.mul(other)
   }
 }
 
 impl<N: UnsignedNumber> ops::MulAssign<Self> for Fraction<N> {
   fn mul_assign(&mut self, other: Self) {
-    *self = self.try_mul(&other).unwrap()
+    *self = self.mul(&other)
   }
 }
 
@@ -434,7 +442,7 @@ impl<N: UnsignedNumber> ops::Div for &Fraction<N> {
   type Output = Fraction<N>;
 
   fn div(self, other: Self) -> Fraction<N> {
-    self.try_div(other).unwrap()
+    self.div(other)
   }
 }
 
@@ -442,18 +450,18 @@ impl<N: UnsignedNumber> ops::Div for Fraction<N> {
   type Output = Self;
 
   fn div(self, other: Self) -> Self {
-    (&self).try_div(&other).unwrap()
+    (&self).div(&other)
   }
 }
 
 impl<N: UnsignedNumber> ops::DivAssign<&Self> for Fraction<N> {
   fn div_assign(&mut self, other: &Self) {
-    *self = self.try_div(other).unwrap()
+    *self = self.div(other)
   }
 }
 
 impl<N: UnsignedNumber> ops::DivAssign<Self> for Fraction<N> {
   fn div_assign(&mut self, other: Self) {
-    *self = self.try_div(&other).unwrap()
+    *self = self.div(&other)
   }
 }
