@@ -98,7 +98,7 @@ fn its_possible_to_handle_overflows() {
     Err(error) if error.error_type() == OperationErrorType::Overflow => {
       assert_eq!(error.message(), "Failed to add 150 and 150");
     }
-    _ => panic!("It's impossible to handle an overflow")
+    _ => panic!("It's impossible to handle an overflow"),
   }
 }
 
