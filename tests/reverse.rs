@@ -2,7 +2,7 @@ use rfraction::Fraction;
 
 #[test]
 fn with_usual_numbers_it_works() {
-  let number = Fraction::<u128>::new(1, 20, true);
+  let number = Fraction::<u128>::new(true, 1, 20).unwrap();
 
   let abs = number.reverse();
 

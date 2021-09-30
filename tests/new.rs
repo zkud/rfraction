@@ -2,9 +2,13 @@ use rfraction::Fraction;
 
 #[test]
 fn new_works() {
-  let number = Fraction::<u128>::new(123, 321, false);
-  assert_eq!(number, Fraction::new(41, 107, false));
+  let number = Fraction::<u128>::new(false, 123, 321).unwrap();
+  assert_eq!(number.numerator(), 41);
+  assert_eq!(number.denominator(), 107);
+  assert!(number.is_positive());
 
-  let number = Fraction::<u128>::new(777, 888, true);
-  assert_eq!(number, Fraction::new(777, 888, true));
+  let number = Fraction::<u128>::new(true, 777, 888).unwrap();
+  assert_eq!(number.numerator(), 7);
+  assert_eq!(number.denominator(), 8);
+  assert!(number.is_negative());
 }

@@ -2,8 +2,8 @@ use rfraction::Fraction;
 
 #[test]
 fn with_usual_nums_sub_works() {
-  let first = Fraction::<u128>::new(10, 140, false);
-  let second = Fraction::<u128>::new(15, 280, false);
+  let first = Fraction::<u128>::new(false, 10, 140).unwrap();
+  let second = Fraction::<u128>::new(false, 15, 280).unwrap();
 
   let result = first - second;
 
@@ -21,8 +21,8 @@ fn with_operator_overloads_it_works() {
   assert_eq!(result, Fraction::new_zero());
 
   result -= &second;
-  assert_eq!(result, Fraction::new(150, 1, true));
+  assert_eq!(result, Fraction::new(true, 150, 1).unwrap());
 
   result -= second;
-  assert_eq!(result, Fraction::new(300, 1, true));
+  assert_eq!(result, Fraction::new(true, 300, 1).unwrap());
 }

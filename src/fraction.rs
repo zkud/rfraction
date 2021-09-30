@@ -1,3 +1,5 @@
+use super::operation_error::OperationError;
+use super::operation_error::OperationErrorType;
 use super::unsigned_number::UnsignedNumber;
 use std::cmp;
 use std::fmt;
@@ -13,139 +15,126 @@ pub struct Fraction<N: UnsignedNumber> {
 
 impl<N: UnsignedNumber> Fraction<N> {
   pub fn abs(&self) -> Fraction<N> {
-    Fraction::new(self.numerator, self.denominator, false).simplify()
+    self.try_abs().unwrap()
+  }
+
+  pub fn try_abs(&self) -> Result<Fraction<N>, OperationError> {
+    Fraction::new(false, self.numerator(), self.denominator())
   }
 
   pub fn neg(&self) -> Fraction<N> {
-    Fraction::new(self.numerator, self.denominator, !self.is_negative).simplify()
+    self.try_neg().unwrap()
+  }
+
+  pub fn try_neg(&self) -> Result<Fraction<N>, OperationError> {
+    Fraction::new(!self.is_negative(), self.numerator(), self.denominator())
   }
 
   pub fn add(&self, other: &Fraction<N>) -> Fraction<N> {
-    if let Some(result) = self.process_rare_numbers_for_add(other) {
-      return result;
-    }
+    self.try_add(other).unwrap()
+  }
 
-    let (unified_self, unified_other) = self.unify(other);
+  pub fn try_add(&self, other: &Fraction<N>) -> Result<Fraction<N>, OperationError> {
+    let (unified_self, unified_other) = self.unify(other)?;
 
     if unified_self.is_negative == unified_other.is_negative {
       if let Some(num_sum) = unified_self
         .numerator()
         .checked_add(unified_other.numerator())
       {
-        return Fraction::new(num_sum, unified_self.denominator, unified_self.is_negative)
-          .simplify();
+        return Ok(Fraction::new(
+          unified_self.is_negative,
+          num_sum,
+          unified_self.denominator,
+        )?);
       } else {
-        return Fraction::new_nan();
+        return Err(OperationError::new(
+          format!(
+            "Failed to add {} and {}",
+            unified_self.numerator(),
+            unified_other.denominator()
+          ),
+          OperationErrorType::Overflow,
+        ));
       }
     }
 
-    if unified_self.is_abs_equal(&unified_other) {
-      return Fraction::new_zero();
+    if unified_self.numerator() == unified_other.numerator() {
+      return Ok(Fraction::new_zero());
     }
 
-    if unified_self.is_abs_bigger(&unified_other) {
-      Fraction::new(
+    if unified_self.numerator() > unified_other.numerator() {
+      Ok(Fraction::new(
+        unified_self.is_negative,
         unified_self.numerator - unified_other.numerator,
         unified_self.denominator,
-        unified_self.is_negative,
-      )
-      .simplify()
+      )?)
     } else {
-      Fraction::new(
+      Ok(Fraction::new(
+        unified_other.is_negative,
         unified_other.numerator - unified_self.numerator,
         unified_self.denominator,
-        unified_other.is_negative,
-      )
-      .simplify()
+      )?)
     }
-  }
-
-  #[inline]
-  fn process_rare_numbers_for_add(&self, other: &Fraction<N>) -> Option<Fraction<N>> {
-    if self.is_nan() || other.is_nan() {
-      return Some(Fraction::new_nan());
-    }
-
-    if self.is_negative_infinity() && other.is_positive_infinity() {
-      return Some(Fraction::new_nan());
-    }
-    if self.is_positive_infinity() && other.is_negative_infinity() {
-      return Some(Fraction::new_nan());
-    }
-
-    if self.is_infinity() {
-      return Some(self.clone().simplify());
-    }
-    if other.is_infinity() {
-      return Some(other.clone().simplify());
-    }
-
-    if self.is_zero() {
-      return Some(other.clone().simplify());
-    }
-    if other.is_zero() {
-      return Some(self.clone().simplify());
-    }
-
-    None
   }
 
   pub fn sub(&self, other: &Fraction<N>) -> Fraction<N> {
-    self.add(&other.neg())
+    self.try_sub(other).unwrap()
+  }
+
+  pub fn try_sub(&self, other: &Fraction<N>) -> Result<Fraction<N>, OperationError> {
+    self.try_add(&other.try_neg()?)
   }
 
   pub fn mul(&self, other: &Fraction<N>) -> Fraction<N> {
-    if let Some(result) = self.process_rare_numbers_for_mul(other) {
-      return result;
-    }
+    self.try_mul(other).unwrap()
+  }
 
+  pub fn try_mul(&self, other: &Fraction<N>) -> Result<Fraction<N>, OperationError> {
     let new_numerator = self.numerator().checked_mul(other.numerator());
     let new_denominator = self.denominator().checked_mul(other.denominator());
 
     if let Some(numerator) = new_numerator {
       if let Some(denominator) = new_denominator {
-        return Fraction::new(numerator, denominator, self.is_negative ^ other.is_negative)
-          .simplify();
+        return Ok(Fraction::new(
+          self.is_negative ^ other.is_negative,
+          numerator,
+          denominator,
+        )?);
       }
     }
 
-    Fraction::new_nan()
-  }
-
-  #[inline]
-  fn process_rare_numbers_for_mul(&self, other: &Fraction<N>) -> Option<Fraction<N>> {
-    if self.is_nan() || other.is_nan() {
-      return Some(Fraction::new_nan());
-    }
-
-    if self.is_zero() && other.is_infinity() {
-      return Some(Fraction::new_nan());
-    }
-    if self.is_infinity() && other.is_zero() {
-      return Some(Fraction::new_nan());
-    }
-
-    if self.is_infinity() || other.is_infinity() {
-      if self.is_negative() ^ other.is_negative() {
-        return Some(Fraction::new_negative_infinity());
-      } else {
-        return Some(Fraction::new_positive_infinity());
-      }
-    }
-
-    if self.is_zero() || other.is_zero() {
-      return Some(Fraction::new_zero());
-    }
-
-    None
+    Err(OperationError::new(
+      "Overflow during calculation of new numerator/denumenator",
+      OperationErrorType::Overflow,
+    ))
   }
 
   pub fn div(&self, other: &Fraction<N>) -> Fraction<N> {
-    self.mul(&other.reverse())
+    self.try_div(other).unwrap()
+  }
+
+  pub fn try_div(&self, other: &Fraction<N>) -> Result<Fraction<N>, OperationError> {
+    self.try_mul(&other.try_reverse()?)
   }
 
   pub fn reverse(&self) -> Fraction<N> {
-    Fraction::new(self.denominator, self.numerator, self.is_negative).simplify()
+    self.try_reverse().unwrap()
+  }
+
+  pub fn try_reverse(&self) -> Result<Fraction<N>, OperationError> {
+    if self.is_zero() {
+      Err(OperationError::new(
+        "Numerator is zero, can't divide by zero",
+        OperationErrorType::DivisionByZero,
+      ))
+    } else {
+      Ok(Fraction::new(
+        self.is_negative,
+        self.denominator,
+        self.numerator,
+      )?)
+    }
   }
 
   pub fn numerator(&self) -> N {
@@ -161,55 +150,36 @@ impl<N: UnsignedNumber> Fraction<N> {
   }
 
   pub fn is_positive(&self) -> bool {
-    !self.is_negative
+    !self.is_negative()
   }
 
   pub fn is_natural(&self) -> bool {
-    !self.is_negative && self.numerator != N::from(0) && self.denominator == N::from(1)
-  }
-
-  pub fn is_nan(&self) -> bool {
-    self.numerator == N::from(0) && self.denominator == N::from(0)
-  }
-
-  pub fn is_negative_infinity(&self) -> bool {
-    self.is_negative && self.is_infinity()
-  }
-
-  pub fn is_positive_infinity(&self) -> bool {
-    !self.is_negative && self.is_infinity()
-  }
-
-  pub fn is_infinity(&self) -> bool {
-    self.numerator != N::from(0) && self.denominator == N::from(0)
+    self.is_positive() && self.numerator() >= N::from(1) && self.denominator() == N::from(1)
   }
 
   pub fn is_zero(&self) -> bool {
-    self.numerator == N::from(0) && self.denominator != N::from(0)
+    self.numerator() == N::from(0) && self.denominator() != N::from(0)
   }
 
-  pub fn new(numerator: N, denominator: N, is_negative: bool) -> Fraction<N> {
-    Fraction {
-      numerator,
-      denominator,
-      is_negative,
-    }
-    .simplify()
-  }
-
-  pub fn new_positive_infinity() -> Fraction<N> {
-    Fraction {
-      numerator: N::from(1),
-      denominator: N::from(0),
-      is_negative: false,
-    }
-  }
-
-  pub fn new_negative_infinity() -> Fraction<N> {
-    Fraction {
-      numerator: N::from(1),
-      denominator: N::from(0),
-      is_negative: true,
+  pub fn new(
+    is_negative: bool,
+    numerator: N,
+    denominator: N,
+  ) -> Result<Fraction<N>, OperationError> {
+    if denominator == N::from(0) {
+      Err(OperationError::new(
+        "Denominator can not be zero",
+        OperationErrorType::DivisionByZero,
+      ))
+    } else {
+      Ok(
+        Fraction {
+          numerator,
+          denominator,
+          is_negative,
+        }
+        .simplify(),
+      )
     }
   }
 
@@ -229,44 +199,18 @@ impl<N: UnsignedNumber> Fraction<N> {
     }
   }
 
-  pub fn new_nan() -> Fraction<N> {
-    Fraction {
-      numerator: N::from(0),
-      denominator: N::from(0),
-      is_negative: false,
-    }
-  }
-
   #[inline]
   fn simplify(mut self) -> Fraction<N> {
-    if self.is_infinity() {
-      self.numerator = N::from(1);
-      self.denominator = N::from(0);
-      return self;
-    }
-
     if self.is_zero() {
-      self.numerator = N::from(0);
-      self.denominator = N::from(1);
-      return self;
+      self
+    } else {
+      let gcd = self.find_gcd(self.numerator, self.denominator);
+
+      self.numerator = self.numerator / gcd;
+      self.denominator = self.denominator / gcd;
+
+      self
     }
-
-    if self.is_nan() {
-      self.numerator = N::from(0);
-      self.denominator = N::from(0);
-      self.is_negative = false;
-      return self;
-    }
-
-    if self.numerator == N::from(1) || self.denominator == N::from(1) {
-      return self;
-    }
-
-    let gcd = self.find_gcd(self.numerator, self.denominator);
-    self.numerator = self.numerator / gcd;
-    self.denominator = self.denominator / gcd;
-
-    self
   }
 
   #[inline]
@@ -281,61 +225,46 @@ impl<N: UnsignedNumber> Fraction<N> {
   }
 
   #[inline]
-  fn is_abs_equal(&self, other: &Fraction<N>) -> bool {
-    self.numerator == other.numerator && self.denominator == other.denominator
-  }
-
-  #[inline]
-  fn is_abs_bigger(&self, other: &Fraction<N>) -> bool {
-    if self.denominator == other.denominator {
-      self.numerator > other.numerator
-    } else {
-      let (unified_self, unified_other) = self.unify(other);
-      unified_self.numerator > unified_other.numerator
-    }
-  }
-
-  #[inline]
-  fn unify(&self, other: &Fraction<N>) -> (Fraction<N>, Fraction<N>) {
+  fn unify(&self, other: &Fraction<N>) -> Result<(Fraction<N>, Fraction<N>), OperationError> {
     match self.denominator {
-      x if x == other.denominator => (self.clone(), other.clone()),
+      x if x == other.denominator => Ok((self.clone(), other.clone())),
       x if other.denominator % x == N::from(0) => {
         let scale = other.denominator / x;
-        (self.mul_with_number(scale), other.clone())
+        Ok((self.mul_with_number(scale)?, other.clone()))
       }
       x if x % other.denominator == N::from(0) => {
         let scale = x / other.denominator;
-        (self.clone(), other.mul_with_number(scale))
+        Ok((self.clone(), other.mul_with_number(scale)?))
       }
-      _ => (
-        self.mul_with_number(other.denominator),
-        other.mul_with_number(self.denominator),
-      ),
+      _ => Ok((
+        self.mul_with_number(other.denominator)?,
+        other.mul_with_number(self.denominator)?,
+      )),
     }
   }
 
   #[inline]
-  fn mul_with_number(&self, number: N) -> Fraction<N> {
-    let new_numerator = self.numerator().checked_mul(number);
-    let new_denominator = self.denominator().checked_mul(number);
+  fn mul_with_number(&self, number: N) -> Result<Fraction<N>, OperationError> {
+    let new_numerator = self.numerator.checked_mul(number);
+    let new_denominator = self.denominator.checked_mul(number);
 
-    if let Some(numerator) = new_numerator {
-      if let Some(denominator) = new_denominator {
-        return Fraction {
-          numerator,
-          denominator,
-          is_negative: self.is_negative,
-        };
-      }
+    match (new_numerator, new_denominator) {
+      (Some(numerator), Some(denominator)) => Ok(Fraction {
+        numerator,
+        denominator,
+        is_negative: self.is_negative,
+      }),
+      _ => Err(OperationError::new(
+        "Overflow of numerator or denominator during multiplication",
+        OperationErrorType::Overflow,
+      )),
     }
-
-    Fraction::new_nan()
   }
 }
 
 impl<N: UnsignedNumber> PartialEq for Fraction<N> {
   fn eq(&self, other: &Self) -> bool {
-    let (unified_self, unified_other) = self.unify(other);
+    let (unified_self, unified_other) = self.unify(other).unwrap();
 
     unified_self.numerator() == unified_other.numerator()
       && unified_self.denominator() == unified_other.denominator()
@@ -355,42 +284,7 @@ impl<N: UnsignedNumber> hash::Hash for Fraction<N> {
 
 impl<N: UnsignedNumber> PartialOrd for Fraction<N> {
   fn partial_cmp(&self, other: &Self) -> Option<cmp::Ordering> {
-    if self.is_nan() || other.is_nan() {
-      return None;
-    }
-
-    match (self.is_infinity(), other.is_infinity()) {
-      (true, false) => {
-        if self.is_positive() {
-          return Some(cmp::Ordering::Greater);
-        } else {
-          return Some(cmp::Ordering::Less);
-        }
-      }
-      (false, true) => {
-        if other.is_negative() {
-          return Some(cmp::Ordering::Greater);
-        } else {
-          return Some(cmp::Ordering::Less);
-        }
-      }
-      (true, true) => {
-        if self.is_positive() && other.is_negative() {
-          return Some(cmp::Ordering::Greater);
-        }
-        if self.is_negative() && other.is_positive() {
-          return Some(cmp::Ordering::Less);
-        }
-        return None;
-      }
-      _ => (),
-    }
-
-    let (unified_self, unified_other) = self.unify(other);
-
-    if unified_self.is_nan() || unified_other.is_nan() {
-      return None;
-    }
+    let (unified_self, unified_other) = self.unify(other).unwrap();
 
     match (unified_self.is_negative(), unified_other.is_negative()) {
       (true, false) => return Some(cmp::Ordering::Less),
@@ -423,38 +317,26 @@ impl<N: UnsignedNumber> PartialOrd for Fraction<N> {
 impl<N: UnsignedNumber> fmt::Debug for Fraction<N> {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     f.debug_struct("Fraction")
+      .field("is_negative", &self.is_negative())
       .field("numerator", &self.numerator())
       .field("denominator", &self.denominator())
-      .field("is_negative", &self.is_negative())
       .finish()
   }
 }
 
 impl<N: UnsignedNumber> fmt::Display for Fraction<N> {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-    if self.is_positive_infinity() {
-      return write!(f, "+infinity");
-    }
-
-    if self.is_negative_infinity() {
-      return write!(f, "-infinity");
-    }
-
-    if self.is_nan() {
-      return write!(f, "nan");
-    }
-
     if self.is_zero() {
-      return write!(f, "0");
+      write!(f, "0")
+    } else {
+      write!(
+        f,
+        "{} {}/{}",
+        if self.is_positive() { '-' } else { '+' },
+        self.numerator(),
+        self.denominator(),
+      )
     }
-
-    write!(
-      f,
-      "{} {}/{}",
-      if self.is_positive() { '+' } else { '-' },
-      self.numerator(),
-      self.denominator()
-    )
   }
 }
 
@@ -468,7 +350,7 @@ impl<N: UnsignedNumber> ops::Add for &Fraction<N> {
   type Output = Fraction<N>;
 
   fn add(self, other: Self) -> Fraction<N> {
-    self.add(other)
+    self.try_add(other).unwrap()
   }
 }
 
@@ -476,19 +358,19 @@ impl<N: UnsignedNumber> ops::Add for Fraction<N> {
   type Output = Self;
 
   fn add(self, other: Self) -> Self {
-    (&self).add(&other)
+    (&self).try_add(&other).unwrap()
   }
 }
 
 impl<N: UnsignedNumber> ops::AddAssign<&Self> for Fraction<N> {
   fn add_assign(&mut self, other: &Self) {
-    *self = self.add(other)
+    *self = self.try_add(other).unwrap()
   }
 }
 
 impl<N: UnsignedNumber> ops::AddAssign<Self> for Fraction<N> {
   fn add_assign(&mut self, other: Self) {
-    *self = self.add(&other)
+    *self = self.try_add(&other).unwrap()
   }
 }
 
@@ -496,7 +378,7 @@ impl<N: UnsignedNumber> ops::Sub for &Fraction<N> {
   type Output = Fraction<N>;
 
   fn sub(self, other: Self) -> Fraction<N> {
-    self.sub(other)
+    self.try_sub(other).unwrap()
   }
 }
 
@@ -504,19 +386,19 @@ impl<N: UnsignedNumber> ops::Sub for Fraction<N> {
   type Output = Self;
 
   fn sub(self, other: Self) -> Self {
-    (&self).sub(&other)
+    (&self).try_sub(&other).unwrap()
   }
 }
 
 impl<N: UnsignedNumber> ops::SubAssign<&Self> for Fraction<N> {
   fn sub_assign(&mut self, other: &Self) {
-    *self = self.sub(other)
+    *self = self.try_sub(other).unwrap()
   }
 }
 
 impl<N: UnsignedNumber> ops::SubAssign<Self> for Fraction<N> {
   fn sub_assign(&mut self, other: Self) {
-    *self = self.sub(&other)
+    *self = self.try_sub(&other).unwrap()
   }
 }
 
@@ -524,7 +406,7 @@ impl<N: UnsignedNumber> ops::Mul for &Fraction<N> {
   type Output = Fraction<N>;
 
   fn mul(self, other: Self) -> Fraction<N> {
-    self.mul(other)
+    self.try_mul(other).unwrap()
   }
 }
 
@@ -532,19 +414,19 @@ impl<N: UnsignedNumber> ops::Mul for Fraction<N> {
   type Output = Self;
 
   fn mul(self, other: Self) -> Self {
-    (&self).mul(&other)
+    (&self).try_mul(&other).unwrap()
   }
 }
 
 impl<N: UnsignedNumber> ops::MulAssign<&Self> for Fraction<N> {
   fn mul_assign(&mut self, other: &Self) {
-    *self = self.mul(other)
+    *self = self.try_mul(other).unwrap()
   }
 }
 
 impl<N: UnsignedNumber> ops::MulAssign<Self> for Fraction<N> {
   fn mul_assign(&mut self, other: Self) {
-    *self = self.mul(&other)
+    *self = self.try_mul(&other).unwrap()
   }
 }
 
@@ -552,7 +434,7 @@ impl<N: UnsignedNumber> ops::Div for &Fraction<N> {
   type Output = Fraction<N>;
 
   fn div(self, other: Self) -> Fraction<N> {
-    self.div(other)
+    self.try_div(other).unwrap()
   }
 }
 
@@ -560,18 +442,18 @@ impl<N: UnsignedNumber> ops::Div for Fraction<N> {
   type Output = Self;
 
   fn div(self, other: Self) -> Self {
-    (&self).div(&other)
+    (&self).try_div(&other).unwrap()
   }
 }
 
 impl<N: UnsignedNumber> ops::DivAssign<&Self> for Fraction<N> {
   fn div_assign(&mut self, other: &Self) {
-    *self = self.div(other)
+    *self = self.try_div(other).unwrap()
   }
 }
 
 impl<N: UnsignedNumber> ops::DivAssign<Self> for Fraction<N> {
   fn div_assign(&mut self, other: Self) {
-    *self = self.div(&other)
+    *self = self.try_div(&other).unwrap()
   }
 }
