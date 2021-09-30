@@ -339,8 +339,8 @@ impl<N: UnsignedNumber> fmt::Display for Fraction<N> {
     } else {
       write!(
         f,
-        "{} {}/{}",
-        if self.is_positive() { '-' } else { '+' },
+        "{}{}/{}",
+        if self.is_positive() { '+' } else { '-' },
         self.numerator(),
         self.denominator(),
       )
