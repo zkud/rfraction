@@ -95,8 +95,8 @@ fn its_possible_to_handle_overflows() {
   let second = Fraction::<u8>::new_natural(150);
 
   match first.try_add(&second) {
-    Err(error) if error.error_type() == OperationErrorType::Overflow => {
-      assert_eq!(error.message(), "Failed to add 150 and 150");
+    Err(error) => {
+      assert_eq!(error.error_type(), OperationErrorType::Overflow);
     }
     _ => panic!("It's impossible to handle an overflow"),
   }

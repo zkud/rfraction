@@ -2,6 +2,7 @@ use super::operation_error::OperationError;
 use super::operation_error::OperationErrorType;
 use super::unsigned_number::UnsignedNumber;
 use std::cmp;
+use std::convert;
 use std::fmt;
 use std::hash;
 use std::ops;
@@ -38,21 +39,13 @@ impl<N: UnsignedNumber> Fraction<N> {
     let (unified_self, unified_other) = self.unify(other)?;
 
     if unified_self.is_negative == unified_other.is_negative {
-      if let Some(num_sum) = unified_self
-        .numerator()
-        .checked_add(unified_other.numerator())
-      {
-        return Fraction::new(unified_self.is_negative, num_sum, unified_self.denominator);
-      } else {
-        return Err(OperationError::new(
-          format!(
-            "Failed to add {} and {}",
-            unified_self.numerator(),
-            unified_other.numerator(),
-          ),
-          OperationErrorType::Overflow,
-        ));
-      }
+      return Fraction::new(
+        unified_self.is_negative,
+        unified_self
+          .numerator()
+          .try_add(unified_other.numerator())?,
+        unified_self.denominator,
+      );
     }
 
     if unified_self.numerator() == unified_other.numerator() {
@@ -87,25 +80,10 @@ impl<N: UnsignedNumber> Fraction<N> {
   }
 
   pub fn try_mul(&self, other: &Fraction<N>) -> Result<Fraction<N>, OperationError> {
-    let new_numerator = self.numerator().checked_mul(other.numerator());
-    let new_denominator = self.denominator().checked_mul(other.denominator());
+    let numerator = self.numerator().try_mul(other.numerator())?;
+    let denominator = self.denominator().try_mul(other.denominator())?;
 
-    if let Some(numerator) = new_numerator {
-      if let Some(denominator) = new_denominator {
-        return Fraction::new(self.is_negative ^ other.is_negative, numerator, denominator);
-      }
-    }
-
-    Err(OperationError::new(
-      format!(
-        "Overflow during following operations: {}*{}, {}*{}",
-        self.numerator(),
-        other.numerator(),
-        self.denominator(),
-        other.denominator(),
-      ),
-      OperationErrorType::Overflow,
-    ))
+    Fraction::new(self.is_negative ^ other.is_negative, numerator, denominator)
   }
 
   pub fn div(&self, other: &Fraction<N>) -> Fraction<N> {
@@ -249,20 +227,14 @@ impl<N: UnsignedNumber> Fraction<N> {
 
   #[inline]
   fn mul_with_number(&self, number: N) -> Result<Fraction<N>, OperationError> {
-    let new_numerator = self.numerator.checked_mul(number);
-    let new_denominator = self.denominator.checked_mul(number);
+    let numerator = self.numerator.try_mul(number)?;
+    let denominator = self.denominator.try_mul(number)?;
 
-    match (new_numerator, new_denominator) {
-      (Some(numerator), Some(denominator)) => Ok(Fraction {
-        numerator,
-        denominator,
-        is_negative: self.is_negative,
-      }),
-      _ => Err(OperationError::new(
-        "Overflow of numerator or denominator during multiplication",
-        OperationErrorType::Overflow,
-      )),
-    }
+    Ok(Fraction {
+      numerator,
+      denominator,
+      is_negative: self.is_negative,
+    })
   }
 }
 
@@ -459,5 +431,69 @@ impl<N: UnsignedNumber> ops::DivAssign<&Self> for Fraction<N> {
 impl<N: UnsignedNumber> ops::DivAssign<Self> for Fraction<N> {
   fn div_assign(&mut self, other: Self) {
     *self = self.div(&other)
+  }
+}
+
+impl<N: UnsignedNumber> From<N> for Fraction<N> {
+  fn from(number: N) -> Fraction<N> {
+    Fraction::new_natural(number)
+  }
+}
+
+impl<N: UnsignedNumber> From<&N> for Fraction<N> {
+  fn from(number: &N) -> Fraction<N> {
+    Fraction::new_natural(*number)
+  }
+}
+
+impl<N: UnsignedNumber> convert::TryFrom<f32> for Fraction<N> {
+  type Error = OperationError;
+
+  fn try_from(mut number: f32) -> Result<Self, Self::Error> {
+    let mut denominator: N = N::from(1);
+
+    for _ in 0..f32::MAX_10_EXP as usize {
+      denominator = denominator.try_mul(N::from(10))?;
+      number *= 10.0;
+
+      if number.fract() < f32::EPSILON {
+        break;
+      }
+    }
+
+    Fraction::new(number < 0.0, N::try_from_f32(number.abs())?, denominator)
+  }
+}
+
+impl<N: UnsignedNumber> convert::TryFrom<f64> for Fraction<N> {
+  type Error = OperationError;
+
+  fn try_from(mut number: f64) -> Result<Self, Self::Error> {
+    let mut denominator: N = N::from(1);
+
+    for _ in 0..f64::MAX_10_EXP as usize {
+      denominator = denominator.try_mul(N::from(10))?;
+      number *= 10.0;
+
+      if number.fract() < f64::EPSILON {
+        break;
+      }
+    }
+
+    Fraction::new(number < 0.0, N::try_from_f64(number.abs())?, denominator)
+  }
+}
+
+impl<N: UnsignedNumber> convert::TryFrom<&str> for Fraction<N> {
+  type Error = OperationError;
+
+  fn try_from(number: &str) -> Result<Self, Self::Error> {
+    match number.parse::<f64>() {
+      Ok(number) => Fraction::try_from(number),
+      Err(error) => Err(OperationError::new(
+        format!("Failed to convert from string, parsing error ({})", error),
+        OperationErrorType::ConvertionError,
+      )),
+    }
   }
 }

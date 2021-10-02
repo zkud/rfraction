@@ -28,6 +28,6 @@ fn it_displayble() {
   let overflow_error = OperationError::new("operation error", OperationErrorType::Overflow);
   assert_eq!(
     format!("{}", overflow_error),
-    String::from("error caused by overflow error, reason: operation error")
+    String::from("error caused by overflow, reason: operation error")
   );
 }

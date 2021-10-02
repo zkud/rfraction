@@ -1,42 +1,18 @@
 use std::error;
 use std::fmt;
 
-#[derive(fmt::Debug, Clone, Hash)]
+#[derive(fmt::Debug, Clone, Hash, PartialEq, Eq)]
 pub struct OperationError {
   error_type: OperationErrorType,
   message: String,
 }
 
-#[derive(fmt::Debug, Clone, PartialEq, Hash)]
+#[derive(fmt::Debug, Clone, PartialEq, Eq, Hash)]
 pub enum OperationErrorType {
   Overflow,
   DivisionByZero,
+  ConvertionError,
 }
-
-impl fmt::Display for OperationErrorType {
-  fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-    match self {
-      OperationErrorType::Overflow => write!(formatter, "overflow error"),
-      OperationErrorType::DivisionByZero => write!(formatter, "division by zero"),
-    }
-  }
-}
-
-impl fmt::Display for OperationError {
-  fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-    write!(
-      formatter,
-      "error caused by {}, reason: {}",
-      self.error_type, self.message
-    )
-  }
-}
-
-impl error::Error for OperationError {}
-
-unsafe impl Send for OperationError {}
-
-unsafe impl Sync for OperationError {}
 
 impl OperationError {
   pub fn new<M: AsRef<str>>(message: M, error_type: OperationErrorType) -> OperationError {
@@ -54,3 +30,25 @@ impl OperationError {
     self.error_type.clone()
   }
 }
+
+impl fmt::Display for OperationError {
+  fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+    write!(
+      formatter,
+      "error caused by {}, reason: {}",
+      self.error_type, self.message
+    )
+  }
+}
+
+impl fmt::Display for OperationErrorType {
+  fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+    match self {
+      OperationErrorType::Overflow => write!(formatter, "overflow"),
+      OperationErrorType::DivisionByZero => write!(formatter, "division by zero"),
+      OperationErrorType::ConvertionError => write!(formatter, "convertion"),
+    }
+  }
+}
+
+impl error::Error for OperationError {}
