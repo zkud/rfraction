@@ -63,15 +63,13 @@ impl UnsignedNumber for u128 {
         "Unable to convert from negative values to unsigned ones",
         OperationErrorType::ConvertionError,
       ))
+    } else if value > u128::MAX as f64 {
+      Err(OperationError::new(
+        "F64 value is bigger than max for u128",
+        OperationErrorType::ConvertionError,
+      ))
     } else {
-      if value > u128::MAX as f64 {
-        Err(OperationError::new(
-          "F64 value is bigger than max for u128",
-          OperationErrorType::ConvertionError,
-        ))
-      } else {
-        Ok(value as u128)
-      }
+      Ok(value as u128)
     }
   }
 }
@@ -103,15 +101,13 @@ impl UnsignedNumber for u64 {
         "Unable to convert from negative values to unsigned ones",
         OperationErrorType::ConvertionError,
       ))
+    } else if value > u64::MAX as f32 {
+      Err(OperationError::new(
+        "F32 value is bigger than max for u64",
+        OperationErrorType::ConvertionError,
+      ))
     } else {
-      if value > u64::MAX as f32 {
-        Err(OperationError::new(
-          "F32 value is bigger than max for u64",
-          OperationErrorType::ConvertionError,
-        ))
-      } else {
-        Ok(value as u64)
-      }
+      Ok(value as u64)
     }
   }
 
@@ -121,15 +117,13 @@ impl UnsignedNumber for u64 {
         "Unable to convert from negative values to unsigned ones",
         OperationErrorType::ConvertionError,
       ))
+    } else if value > u64::MAX as f64 {
+      Err(OperationError::new(
+        "F64 value is bigger than max for u64",
+        OperationErrorType::ConvertionError,
+      ))
     } else {
-      if value > u64::MAX as f64 {
-        Err(OperationError::new(
-          "F64 value is bigger than max for u64",
-          OperationErrorType::ConvertionError,
-        ))
-      } else {
-        Ok(value as u64)
-      }
+      Ok(value as u64)
     }
   }
 }
@@ -161,15 +155,13 @@ impl UnsignedNumber for u32 {
         "Unable to convert from negative values to unsigned ones",
         OperationErrorType::ConvertionError,
       ))
+    } else if value > u32::MAX as f32 {
+      Err(OperationError::new(
+        "F32 value is bigger than max for u32",
+        OperationErrorType::ConvertionError,
+      ))
     } else {
-      if value > u32::MAX as f32 {
-        Err(OperationError::new(
-          "F32 value is bigger than max for u32",
-          OperationErrorType::ConvertionError,
-        ))
-      } else {
-        Ok(value as u32)
-      }
+      Ok(value as u32)
     }
   }
 
@@ -179,15 +171,13 @@ impl UnsignedNumber for u32 {
         "Unable to convert from negative values to unsigned ones",
         OperationErrorType::ConvertionError,
       ))
+    } else if value > u32::MAX as f64 {
+      Err(OperationError::new(
+        "F64 value is bigger than max for u32",
+        OperationErrorType::ConvertionError,
+      ))
     } else {
-      if value > u32::MAX as f64 {
-        Err(OperationError::new(
-          "F64 value is bigger than max for u32",
-          OperationErrorType::ConvertionError,
-        ))
-      } else {
-        Ok(value as u32)
-      }
+      Ok(value as u32)
     }
   }
 }
@@ -219,15 +209,13 @@ impl UnsignedNumber for u16 {
         "Unable to convert from negative values to unsigned ones",
         OperationErrorType::ConvertionError,
       ))
+    } else if value > u16::MAX as f32 {
+      Err(OperationError::new(
+        "F32 value is bigger than max for u16",
+        OperationErrorType::ConvertionError,
+      ))
     } else {
-      if value > u16::MAX as f32 {
-        Err(OperationError::new(
-          "F32 value is bigger than max for u16",
-          OperationErrorType::ConvertionError,
-        ))
-      } else {
-        Ok(value as u16)
-      }
+      Ok(value as u16)
     }
   }
 
