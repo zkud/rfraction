@@ -30,4 +30,11 @@ fn it_displayble() {
     format!("{}", overflow_error),
     String::from("error caused by overflow, reason: operation error")
   );
+
+  let convertion_error =
+    OperationError::new("operation error", OperationErrorType::ConvertionError);
+  assert_eq!(
+    format!("{}", convertion_error),
+    String::from("error caused by convertion, reason: operation error")
+  );
 }

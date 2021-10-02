@@ -86,19 +86,6 @@ fn with_overflowing_nums_mul_works() {
 }
 
 #[test]
-fn its_possible_to_handle_an_overflow() {
-  let first = Fraction::<u8>::new_natural(150);
-  let second = Fraction::<u8>::new_natural(150);
-
-  match first.try_mul(&second) {
-    Err(error) => {
-      assert_eq!(error.error_type(), OperationErrorType::Overflow);
-    }
-    _ => panic!("It's impossible to handle an overflow"),
-  }
-}
-
-#[test]
 fn with_operator_overloads_it_works() {
   let first = Fraction::<u128>::new_natural(1);
   let second = Fraction::<u128>::new_natural(18);
@@ -111,4 +98,69 @@ fn with_operator_overloads_it_works() {
 
   result *= second;
   assert_eq!(result, Fraction::new_natural(5832));
+}
+
+#[test]
+fn its_possible_to_handle_an_overflow_with_u8() {
+  let first = Fraction::<u8>::new_natural(150);
+  let second = Fraction::<u8>::new_natural(150);
+
+  match first.try_mul(&second) {
+    Err(error) => {
+      assert_eq!(error.error_type(), OperationErrorType::Overflow);
+    }
+    _ => panic!("It's impossible to handle an overflow"),
+  }
+}
+
+#[test]
+fn its_possible_to_handle_an_overflow_with_u16() {
+  let first = Fraction::<u16>::new_natural(u16::MAX - 1);
+  let second = Fraction::<u16>::new_natural(u16::MAX - 1);
+
+  match first.try_mul(&second) {
+    Err(error) => {
+      assert_eq!(error.error_type(), OperationErrorType::Overflow);
+    }
+    _ => panic!("It's impossible to handle an overflow"),
+  }
+}
+
+#[test]
+fn its_possible_to_handle_an_overflow_with_u32() {
+  let first = Fraction::<u32>::new_natural(u32::MAX - 1);
+  let second = Fraction::<u32>::new_natural(u32::MAX - 1);
+
+  match first.try_mul(&second) {
+    Err(error) => {
+      assert_eq!(error.error_type(), OperationErrorType::Overflow);
+    }
+    _ => panic!("It's impossible to handle an overflow"),
+  }
+}
+
+#[test]
+fn its_possible_to_handle_an_overflow_with_u64() {
+  let first = Fraction::<u64>::new_natural(u64::MAX - 1);
+  let second = Fraction::<u64>::new_natural(u64::MAX - 1);
+
+  match first.try_mul(&second) {
+    Err(error) => {
+      assert_eq!(error.error_type(), OperationErrorType::Overflow);
+    }
+    _ => panic!("It's impossible to handle an overflow"),
+  }
+}
+
+#[test]
+fn its_possible_to_handle_an_overflow_with_u128() {
+  let first = Fraction::<u128>::new_natural(u128::MAX - 1);
+  let second = Fraction::<u128>::new_natural(u128::MAX - 1);
+
+  match first.try_mul(&second) {
+    Err(error) => {
+      assert_eq!(error.error_type(), OperationErrorType::Overflow);
+    }
+    _ => panic!("It's impossible to handle an overflow"),
+  }
 }
