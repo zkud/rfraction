@@ -3,6 +3,7 @@ use super::OperationErrorType;
 use std::fmt;
 use std::hash;
 use std::ops;
+use std::str;
 
 pub trait UnsignedNumber:
   fmt::Display
@@ -13,6 +14,7 @@ pub trait UnsignedNumber:
   + From<u8>
   + Ord
   + hash::Hash
+  + str::FromStr
   + ops::Add<Output = Self>
   + ops::Sub<Output = Self>
   + ops::Mul<Output = Self>

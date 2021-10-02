@@ -456,7 +456,7 @@ impl<N: UnsignedNumber> convert::TryFrom<f32> for Fraction<N> {
       denominator = denominator.try_mul(N::from(10))?;
       number *= 10.0;
 
-      if number.fract() < f32::EPSILON {
+      if number.abs().fract() < f32::EPSILON {
         break;
       }
     }
@@ -475,7 +475,7 @@ impl<N: UnsignedNumber> convert::TryFrom<f64> for Fraction<N> {
       denominator = denominator.try_mul(N::from(10))?;
       number *= 10.0;
 
-      if number.fract() < f64::EPSILON {
+      if number.abs().fract() < f64::EPSILON {
         break;
       }
     }
@@ -488,6 +488,14 @@ impl<N: UnsignedNumber> convert::TryFrom<&str> for Fraction<N> {
   type Error = OperationError;
 
   fn try_from(number: &str) -> Result<Self, Self::Error> {
+    if let Ok(natural_number) = number.parse::<N>() {
+      return Ok(Fraction::new_natural(natural_number));
+    }
+
+    if let Ok(natural_number) = number.replace("-", "").parse::<N>() {
+      return Fraction::new(true, natural_number, N::from(1));
+    }
+
     match number.parse::<f64>() {
       Ok(number) => Fraction::try_from(number),
       Err(error) => Err(OperationError::new(
