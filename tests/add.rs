@@ -1,10 +1,11 @@
 use rfraction::Fraction;
 use rfraction::OperationErrorType;
+use rfraction::Sign;
 
 #[test]
 fn with_usual_u128_nums_add_works() {
-  let first = Fraction::<u128>::new(false, 10, 140).unwrap();
-  let second = Fraction::<u128>::new(false, 15, 280).unwrap();
+  let first = Fraction::<u128>::new(Sign::Positive, 10, 140).unwrap();
+  let second = Fraction::<u128>::new(Sign::Positive, 15, 280).unwrap();
 
   let result = first + second;
 
@@ -15,8 +16,8 @@ fn with_usual_u128_nums_add_works() {
 
 #[test]
 fn with_usual_u64_nums_add_works() {
-  let first = Fraction::<u64>::new(false, 10, 140).unwrap();
-  let second = Fraction::<u64>::new(false, 15, 280).unwrap();
+  let first = Fraction::<u64>::new(Sign::Positive, 10, 140).unwrap();
+  let second = Fraction::<u64>::new(Sign::Positive, 15, 280).unwrap();
 
   let result = first + second;
 
@@ -27,8 +28,8 @@ fn with_usual_u64_nums_add_works() {
 
 #[test]
 fn with_usual_u32_nums_add_works() {
-  let first = Fraction::<u32>::new(false, 10, 140).unwrap();
-  let second = Fraction::<u32>::new(false, 15, 280).unwrap();
+  let first = Fraction::<u32>::new(Sign::Positive, 10, 140).unwrap();
+  let second = Fraction::<u32>::new(Sign::Positive, 15, 280).unwrap();
 
   let result = first + second;
 
@@ -39,8 +40,8 @@ fn with_usual_u32_nums_add_works() {
 
 #[test]
 fn with_usual_u16_nums_add_works() {
-  let first = Fraction::<u16>::new(false, 10, 140).unwrap();
-  let second = Fraction::<u16>::new(false, 15, 280).unwrap();
+  let first = Fraction::<u16>::new(Sign::Positive, 10, 140).unwrap();
+  let second = Fraction::<u16>::new(Sign::Positive, 15, 280).unwrap();
 
   let result = first + second;
 
@@ -51,8 +52,8 @@ fn with_usual_u16_nums_add_works() {
 
 #[test]
 fn with_usual_u8_nums_add_works() {
-  let first = Fraction::<u8>::new(false, 20, 20).unwrap();
-  let second = Fraction::<u8>::new(false, 15, 10).unwrap();
+  let first = Fraction::<u8>::new(Sign::Positive, 20, 20).unwrap();
+  let second = Fraction::<u8>::new(Sign::Positive, 15, 10).unwrap();
 
   let result = first + second;
 

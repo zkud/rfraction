@@ -25,6 +25,8 @@ pub trait UnsignedNumber:
   fn try_mul(self, other: Self) -> Result<Self, OperationError>;
   fn try_from_f32(value: f32) -> Result<Self, OperationError>;
   fn try_from_f64(value: f64) -> Result<Self, OperationError>;
+  fn to_f32(self) -> f32;
+  fn to_f64(self) -> f64;
 }
 
 impl UnsignedNumber for u128 {
@@ -73,6 +75,14 @@ impl UnsignedNumber for u128 {
     } else {
       Ok(value as u128)
     }
+  }
+
+  fn to_f32(self) -> f32 {
+    self as f32
+  }
+
+  fn to_f64(self) -> f64 {
+    self as f64
   }
 }
 
@@ -128,6 +138,14 @@ impl UnsignedNumber for u64 {
       Ok(value as u64)
     }
   }
+
+  fn to_f32(self) -> f32 {
+    self as f32
+  }
+
+  fn to_f64(self) -> f64 {
+    self as f64
+  }
 }
 
 impl UnsignedNumber for u32 {
@@ -181,6 +199,14 @@ impl UnsignedNumber for u32 {
     } else {
       Ok(value as u32)
     }
+  }
+
+  fn to_f32(self) -> f32 {
+    self as f32
+  }
+
+  fn to_f64(self) -> f64 {
+    self as f64
   }
 }
 
@@ -237,6 +263,14 @@ impl UnsignedNumber for u16 {
         Ok(value as u16)
       }
     }
+  }
+
+  fn to_f32(self) -> f32 {
+    self as f32
+  }
+
+  fn to_f64(self) -> f64 {
+    self as f64
   }
 }
 
@@ -295,5 +329,13 @@ impl UnsignedNumber for u8 {
         Ok(value as u8)
       }
     }
+  }
+
+  fn to_f32(self) -> f32 {
+    self as f32
+  }
+
+  fn to_f64(self) -> f64 {
+    self as f64
   }
 }
