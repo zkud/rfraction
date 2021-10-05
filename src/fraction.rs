@@ -21,7 +21,7 @@ impl<N: UnsignedNumber> Fraction<N> {
   }
 
   pub fn try_abs(&self) -> Result<Fraction<N>, OperationError> {
-    Fraction::new(Sign::Positive, self.numerator(), self.denominator())
+    Fraction::try_new(Sign::Positive, self.numerator(), self.denominator())
   }
 
   pub fn neg(&self) -> Fraction<N> {
@@ -29,7 +29,7 @@ impl<N: UnsignedNumber> Fraction<N> {
   }
 
   pub fn try_neg(&self) -> Result<Fraction<N>, OperationError> {
-    Fraction::new(self.sign.inverse(), self.numerator(), self.denominator())
+    Fraction::try_new(self.sign.inverse(), self.numerator(), self.denominator())
   }
 
   pub fn add(&self, other: &Fraction<N>) -> Fraction<N> {
@@ -40,7 +40,7 @@ impl<N: UnsignedNumber> Fraction<N> {
     let (unified_self, unified_other) = self.unify(other)?;
 
     if unified_self.sign == unified_other.sign {
-      return Fraction::new(
+      return Fraction::try_new(
         unified_self.sign,
         unified_self
           .numerator()
@@ -54,17 +54,17 @@ impl<N: UnsignedNumber> Fraction<N> {
     }
 
     if unified_self.numerator() > unified_other.numerator() {
-      Ok(Fraction::new(
+      Fraction::try_new(
         unified_self.sign,
         unified_self.numerator - unified_other.numerator,
         unified_self.denominator,
-      )?)
+      )
     } else {
-      Ok(Fraction::new(
+      Fraction::try_new(
         unified_other.sign,
         unified_other.numerator - unified_self.numerator,
         unified_self.denominator,
-      )?)
+      )
     }
   }
 
@@ -84,7 +84,7 @@ impl<N: UnsignedNumber> Fraction<N> {
     let numerator = self.numerator().try_mul(other.numerator())?;
     let denominator = self.denominator().try_mul(other.denominator())?;
 
-    Fraction::new(self.sign.mul(&other.sign), numerator, denominator)
+    Fraction::try_new(self.sign.mul(&other.sign), numerator, denominator)
   }
 
   pub fn div(&self, other: &Fraction<N>) -> Fraction<N> {
@@ -106,7 +106,7 @@ impl<N: UnsignedNumber> Fraction<N> {
         OperationErrorType::DivisionByZero,
       ))
     } else {
-      Ok(Fraction::new(self.sign, self.denominator, self.numerator)?)
+      Fraction::try_new(self.sign, self.denominator, self.numerator)
     }
   }
 
@@ -170,7 +170,11 @@ impl<N: UnsignedNumber> Fraction<N> {
     }
   }
 
-  pub fn new(sign: Sign, numerator: N, denominator: N) -> Result<Fraction<N>, OperationError> {
+  pub fn new(sign: Sign, numerator: N, denominator: N) -> Fraction<N> {
+    Fraction::try_new(sign, numerator, denominator).unwrap()
+  }
+
+  pub fn try_new(sign: Sign, numerator: N, denominator: N) -> Result<Fraction<N>, OperationError> {
     if denominator == N::from(0) {
       Err(OperationError::new(
         "Denominator can not be zero",
@@ -483,9 +487,9 @@ impl<N: UnsignedNumber> convert::TryFrom<f32> for Fraction<N> {
     }
 
     if number < 0.0 {
-      Fraction::new(Sign::Negative, N::try_from_f32(number.abs())?, denominator)
+      Fraction::try_new(Sign::Negative, N::try_from_f32(number.abs())?, denominator)
     } else {
-      Fraction::new(Sign::Positive, N::try_from_f32(number.abs())?, denominator)
+      Fraction::try_new(Sign::Positive, N::try_from_f32(number.abs())?, denominator)
     }
   }
 }
@@ -506,9 +510,9 @@ impl<N: UnsignedNumber> convert::TryFrom<f64> for Fraction<N> {
     }
 
     if number < 0.0 {
-      Fraction::new(Sign::Negative, N::try_from_f64(number.abs())?, denominator)
+      Fraction::try_new(Sign::Negative, N::try_from_f64(number.abs())?, denominator)
     } else {
-      Fraction::new(Sign::Positive, N::try_from_f64(number.abs())?, denominator)
+      Fraction::try_new(Sign::Positive, N::try_from_f64(number.abs())?, denominator)
     }
   }
 }
@@ -522,7 +526,7 @@ impl<N: UnsignedNumber> convert::TryFrom<&str> for Fraction<N> {
     }
 
     if let Ok(natural_number) = number.replace("-", "").parse::<N>() {
-      return Fraction::new(Sign::Negative, natural_number, N::from(1));
+      return Fraction::try_new(Sign::Negative, natural_number, N::from(1));
     }
 
     match number.parse::<f64>() {

@@ -4,8 +4,8 @@ use std::convert::TryFrom;
 
 #[test]
 fn with_different_signes_it_compares() {
-  let negative = Fraction::<u32>::new(Sign::Negative, 1, 3).unwrap();
-  let positive = Fraction::<u32>::new(Sign::Positive, 1, 17).unwrap();
+  let negative = Fraction::<u32>::new(Sign::Negative, 1, 3);
+  let positive = Fraction::<u32>::new(Sign::Positive, 1, 17);
 
   assert!(positive > negative);
   assert!(positive != negative);
@@ -16,8 +16,8 @@ fn with_different_signes_it_compares() {
 
 #[test]
 fn with_negative_numbers_it_compares() {
-  let negative1 = Fraction::<u32>::new(Sign::Negative, 1, 3).unwrap();
-  let negative2 = Fraction::<u32>::new(Sign::Negative, 1, 17).unwrap();
+  let negative1 = Fraction::<u32>::new(Sign::Negative, 1, 3);
+  let negative2 = Fraction::<u32>::new(Sign::Negative, 1, 17);
 
   assert!(negative2 > negative1);
   assert!(negative2 != negative1);
@@ -28,8 +28,8 @@ fn with_negative_numbers_it_compares() {
 
 #[test]
 fn with_positive_numbers_it_compares() {
-  let positive1 = Fraction::<u32>::new(Sign::Positive, 1, 3).unwrap();
-  let positive2 = Fraction::<u32>::new(Sign::Positive, 1, 17).unwrap();
+  let positive1 = Fraction::<u32>::new(Sign::Positive, 1, 3);
+  let positive2 = Fraction::<u32>::new(Sign::Positive, 1, 17);
 
   assert!(positive2 < positive1);
   assert!(positive2 != positive1);
@@ -40,8 +40,8 @@ fn with_positive_numbers_it_compares() {
 
 #[test]
 fn it_is_displayable() {
-  let positive = Fraction::<u32>::new(Sign::Positive, 10, 3).unwrap();
-  let negative = Fraction::<u32>::new(Sign::Negative, 3, 10).unwrap();
+  let positive = Fraction::<u32>::new(Sign::Positive, 10, 3);
+  let negative = Fraction::<u32>::new(Sign::Negative, 3, 10);
   let zero = Fraction::<u32>::new_zero();
 
   assert_eq!(String::from("+10/3"), format!("{}", positive));
@@ -51,8 +51,8 @@ fn it_is_displayable() {
 
 #[test]
 fn it_is_debuggable() {
-  let positive = Fraction::<u32>::new(Sign::Positive, 10, 3).unwrap();
-  let negative = Fraction::<u32>::new(Sign::Negative, 3, 10).unwrap();
+  let positive = Fraction::<u32>::new(Sign::Positive, 10, 3);
+  let negative = Fraction::<u32>::new(Sign::Negative, 3, 10);
   let zero = Fraction::<u32>::new_zero();
 
   assert_eq!(
@@ -87,37 +87,25 @@ fn it_convertable_from_the_origin_type() {
 #[test]
 fn it_convertable_from_the_f32_type() {
   let number = Fraction::<u128>::try_from(3.14f32).unwrap();
-  assert_eq!(
-    number,
-    Fraction::<u128>::new(Sign::Positive, 314, 100).unwrap()
-  );
+  assert_eq!(number, Fraction::<u128>::new(Sign::Positive, 314, 100));
 }
 
 #[test]
 fn it_convertable_from_the_f64_type() {
   let number = Fraction::<u128>::try_from(3.1438f64).unwrap();
-  assert_eq!(
-    number,
-    Fraction::<u128>::new(Sign::Positive, 31438, 10000).unwrap()
-  );
+  assert_eq!(number, Fraction::<u128>::new(Sign::Positive, 31438, 10000));
 }
 
 #[test]
 fn it_convertable_from_the_string_type() {
   let number = Fraction::<u128>::try_from("3.1438").unwrap();
-  assert_eq!(
-    number,
-    Fraction::<u128>::new(Sign::Positive, 31438, 10000).unwrap()
-  );
+  assert_eq!(number, Fraction::<u128>::new(Sign::Positive, 31438, 10000));
 
   let number = Fraction::<u128>::try_from("-3.1438").unwrap();
-  assert_eq!(
-    number,
-    Fraction::<u128>::new(Sign::Negative, 31438, 10000).unwrap()
-  );
+  assert_eq!(number, Fraction::<u128>::new(Sign::Negative, 31438, 10000));
 
   let number = Fraction::<u128>::try_from("-3").unwrap();
-  assert_eq!(number, Fraction::<u128>::new(Sign::Negative, 3, 1).unwrap());
+  assert_eq!(number, Fraction::<u128>::new(Sign::Negative, 3, 1));
 
   let number = Fraction::<u128>::try_from("+3").unwrap();
   assert_eq!(number, Fraction::<u128>::new_natural(3));
@@ -126,8 +114,5 @@ fn it_convertable_from_the_string_type() {
   assert_eq!(number, Fraction::<u128>::new_natural(3));
 
   let number = Fraction::<u128>::try_from("1e-5").unwrap();
-  assert_eq!(
-    number,
-    Fraction::<u128>::new(Sign::Positive, 1, 100000).unwrap()
-  );
+  assert_eq!(number, Fraction::<u128>::new(Sign::Positive, 1, 100000));
 }

@@ -3,7 +3,7 @@ use rfraction::Sign;
 
 #[test]
 fn with_usual_numbers_it_works() {
-  let number = Fraction::<u128>::new(Sign::Negative, 1, 20).unwrap();
+  let number = Fraction::<u128>::new(Sign::Negative, 1, 20);
   assert_eq!(number.is_positive(), false);
   assert_eq!(number.is_negative(), true);
   assert_eq!(number.is_natural(), false);

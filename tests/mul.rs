@@ -4,8 +4,8 @@ use rfraction::Sign;
 
 #[test]
 fn with_usual_u128_nums_mul_works() {
-  let first = Fraction::<u128>::new(Sign::Negative, 13, 17).unwrap();
-  let second = Fraction::<u128>::new(Sign::Positive, 18, 19).unwrap();
+  let first = Fraction::<u128>::new(Sign::Negative, 13, 17);
+  let second = Fraction::<u128>::new(Sign::Positive, 18, 19);
 
   let result = first * second;
 
@@ -16,8 +16,8 @@ fn with_usual_u128_nums_mul_works() {
 
 #[test]
 fn with_usual_u64_nums_mul_works() {
-  let first = Fraction::<u64>::new(Sign::Negative, 13, 17).unwrap();
-  let second = Fraction::<u64>::new(Sign::Positive, 18, 19).unwrap();
+  let first = Fraction::<u64>::new(Sign::Negative, 13, 17);
+  let second = Fraction::<u64>::new(Sign::Positive, 18, 19);
 
   let result = first * second;
 
@@ -28,8 +28,8 @@ fn with_usual_u64_nums_mul_works() {
 
 #[test]
 fn with_usual_u32_nums_mul_works() {
-  let first = Fraction::<u32>::new(Sign::Negative, 13, 17).unwrap();
-  let second = Fraction::<u32>::new(Sign::Positive, 18, 19).unwrap();
+  let first = Fraction::<u32>::new(Sign::Negative, 13, 17);
+  let second = Fraction::<u32>::new(Sign::Positive, 18, 19);
 
   let result = first * second;
 
@@ -40,8 +40,8 @@ fn with_usual_u32_nums_mul_works() {
 
 #[test]
 fn with_usual_u16_nums_mul_works() {
-  let first = Fraction::<u16>::new(Sign::Negative, 13, 17).unwrap();
-  let second = Fraction::<u16>::new(Sign::Positive, 18, 19).unwrap();
+  let first = Fraction::<u16>::new(Sign::Negative, 13, 17);
+  let second = Fraction::<u16>::new(Sign::Positive, 18, 19);
 
   let result = first * second;
 
@@ -52,8 +52,8 @@ fn with_usual_u16_nums_mul_works() {
 
 #[test]
 fn with_usual_u8_nums_mul_works() {
-  let first = Fraction::<u8>::new(Sign::Negative, 13, 11).unwrap();
-  let second = Fraction::<u8>::new(Sign::Positive, 18, 19).unwrap();
+  let first = Fraction::<u8>::new(Sign::Negative, 13, 11);
+  let second = Fraction::<u8>::new(Sign::Positive, 18, 19);
 
   let result = first * second;
 
