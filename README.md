@@ -9,8 +9,10 @@ Rapid and clear to use fractional numbers crate for the Rust programming languag
 
 Add this to your Cargo.toml:
 
+```
 [dependencies]
 rfraction = "0.1.0"
+```
 
 ## Usage Example:
 
