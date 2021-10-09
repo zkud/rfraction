@@ -1,3 +1,4 @@
+use super::convertable_to::ConvertableTo;
 use super::operation_error::OperationError;
 use super::operation_error::OperationErrorType;
 use super::sign::Sign;
@@ -146,27 +147,18 @@ impl<N: UnsignedNumber> Fraction<N> {
     self.numerator() == N::from(0) && self.denominator() != N::from(0)
   }
 
-  pub fn to_f32(&self) -> f32 {
-    if self.is_zero() {
-      return 0.0;
-    }
+  pub fn to_number<F>(&self) -> F
+  where
+    F: ops::Div<F, Output = F> + ops::Neg<Output = F>,
+    N: ConvertableTo<F>,
+  {
+    let numerator: F = self.numerator().convert_to();
+    let denominator: F = self.denominator().convert_to();
 
     if self.is_positive() {
-      self.numerator().to_f32() / self.denominator().to_f32()
+      numerator / denominator
     } else {
-      -self.numerator().to_f32() / self.denominator().to_f32()
-    }
-  }
-
-  pub fn to_f64(&self) -> f64 {
-    if self.is_zero() {
-      return 0.0;
-    }
-
-    if self.is_positive() {
-      self.numerator().to_f64() / self.denominator().to_f64()
-    } else {
-      -self.numerator().to_f64() / self.denominator().to_f64()
+      -numerator / denominator
     }
   }
 
