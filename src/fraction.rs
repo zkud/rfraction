@@ -107,16 +107,16 @@ impl<N: UnsignedNumber> Fraction<N> {
         OperationErrorType::DivisionByZero,
       ))
     } else {
-      Fraction::try_new(self.sign, self.denominator, self.numerator)
+      Fraction::try_new(self.sign, self.denominator.clone(), self.numerator.clone())
     }
   }
 
   pub fn numerator(&self) -> N {
-    self.numerator
+    self.numerator.clone()
   }
 
   pub fn denominator(&self) -> N {
-    self.denominator
+    self.denominator.clone()
   }
 
   pub fn sign(&self) -> Sign {
@@ -140,11 +140,11 @@ impl<N: UnsignedNumber> Fraction<N> {
   }
 
   pub fn is_natural(&self) -> bool {
-    self.is_positive() && self.numerator() >= N::from(1) && self.denominator() == N::from(1)
+    self.is_positive() && self.numerator() >= N::ONE && self.denominator() == N::ONE
   }
 
   pub fn is_zero(&self) -> bool {
-    self.numerator() == N::from(0) && self.denominator() != N::from(0)
+    self.numerator() == N::ZERO && self.denominator() != N::ZERO
   }
 
   pub fn to_number<F>(&self) -> F
@@ -167,7 +167,7 @@ impl<N: UnsignedNumber> Fraction<N> {
   }
 
   pub fn try_new(sign: Sign, numerator: N, denominator: N) -> Result<Fraction<N>, OperationError> {
-    if denominator == N::from(0) {
+    if denominator == N::ZERO {
       Err(OperationError::new(
         "Denominator can not be zero",
         OperationErrorType::DivisionByZero,
@@ -186,8 +186,8 @@ impl<N: UnsignedNumber> Fraction<N> {
 
   pub fn new_zero() -> Fraction<N> {
     Fraction {
-      numerator: N::from(0),
-      denominator: N::from(1),
+      numerator: N::ZERO,
+      denominator: N::ONE,
       sign: Sign::Positive,
     }
   }
@@ -195,7 +195,7 @@ impl<N: UnsignedNumber> Fraction<N> {
   pub fn new_natural(value: N) -> Fraction<N> {
     Fraction {
       numerator: value,
-      denominator: N::from(1),
+      denominator: N::ONE,
       sign: Sign::Positive,
     }
   }
@@ -203,9 +203,9 @@ impl<N: UnsignedNumber> Fraction<N> {
   #[inline]
   fn simplify(mut self) -> Fraction<N> {
     if !self.is_zero() {
-      let gcd = self.find_gcd(self.numerator, self.denominator);
+      let gcd = self.find_gcd(self.numerator.clone(), self.denominator.clone());
 
-      self.numerator = self.numerator / gcd;
+      self.numerator = self.numerator / gcd.clone();
       self.denominator = self.denominator / gcd;
     }
 
@@ -214,8 +214,8 @@ impl<N: UnsignedNumber> Fraction<N> {
 
   #[inline]
   fn find_gcd(&self, mut a: N, mut b: N) -> N {
-    while b != N::from(0) {
-      let c = b;
+    while b != N::ZERO {
+      let c = b.clone();
       b = a % b;
       a = c;
     }
@@ -225,27 +225,27 @@ impl<N: UnsignedNumber> Fraction<N> {
 
   #[inline]
   fn unify(&self, other: &Fraction<N>) -> Result<(Fraction<N>, Fraction<N>), OperationError> {
-    match self.denominator {
+    match self.denominator.clone() {
       x if x == other.denominator => Ok((self.clone(), other.clone())),
-      x if other.denominator % x == N::from(0) => {
-        let scale = other.denominator / x;
+      x if other.denominator.clone() % x.clone() == N::ZERO => {
+        let scale = other.denominator.clone() / x;
         Ok((self.mul_with_number(scale)?, other.clone()))
       }
-      x if x % other.denominator == N::from(0) => {
-        let scale = x / other.denominator;
+      x if x.clone() % other.denominator.clone() == N::ONE => {
+        let scale = x / other.denominator.clone();
         Ok((self.clone(), other.mul_with_number(scale)?))
       }
       _ => Ok((
-        self.mul_with_number(other.denominator)?,
-        other.mul_with_number(self.denominator)?,
+        self.mul_with_number(other.denominator.clone())?,
+        other.mul_with_number(self.denominator.clone())?,
       )),
     }
   }
 
   #[inline]
   fn mul_with_number(&self, number: N) -> Result<Fraction<N>, OperationError> {
-    let numerator = self.numerator.try_mul(number)?;
-    let denominator = self.denominator.try_mul(number)?;
+    let numerator = self.numerator.clone().try_mul(number.clone())?;
+    let denominator = self.denominator.clone().try_mul(number)?;
 
     Ok(Fraction {
       numerator,
@@ -459,7 +459,7 @@ impl<N: UnsignedNumber> From<N> for Fraction<N> {
 
 impl<N: UnsignedNumber> From<&N> for Fraction<N> {
   fn from(number: &N) -> Fraction<N> {
-    Fraction::new_natural(*number)
+    Fraction::new_natural(number.clone())
   }
 }
 
@@ -467,10 +467,10 @@ impl<N: UnsignedNumber> convert::TryFrom<f32> for Fraction<N> {
   type Error = OperationError;
 
   fn try_from(mut number: f32) -> Result<Self, Self::Error> {
-    let mut denominator: N = N::from(1);
+    let mut denominator: N = N::ONE;
 
     for _ in 0..f32::MAX_10_EXP as usize {
-      denominator = denominator.try_mul(N::from(10))?;
+      denominator = denominator.try_mul(N::TEN)?;
       number *= 10.0;
 
       if number.abs().fract() < f32::EPSILON {
@@ -490,10 +490,10 @@ impl<N: UnsignedNumber> convert::TryFrom<f64> for Fraction<N> {
   type Error = OperationError;
 
   fn try_from(mut number: f64) -> Result<Self, Self::Error> {
-    let mut denominator: N = N::from(1);
+    let mut denominator: N = N::ONE;
 
     for _ in 0..f64::MAX_10_EXP as usize {
-      denominator = denominator.try_mul(N::from(10))?;
+      denominator = denominator.try_mul(N::TEN)?;
       number *= 10.0;
 
       if number.abs().fract() < f64::EPSILON {
@@ -518,7 +518,7 @@ impl<N: UnsignedNumber> convert::TryFrom<&str> for Fraction<N> {
     }
 
     if let Ok(natural_number) = number.replace("-", "").parse::<N>() {
-      return Fraction::try_new(Sign::Negative, natural_number, N::from(1));
+      return Fraction::try_new(Sign::Negative, natural_number, N::ONE);
     }
 
     match number.parse::<f64>() {

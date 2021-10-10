@@ -9,10 +9,8 @@ use std::str;
 pub trait UnsignedNumber:
   fmt::Display
   + fmt::Debug
-  + Copy
   + Clone
   + Eq
-  + From<u8>
   + Ord
   + hash::Hash
   + str::FromStr
@@ -24,6 +22,10 @@ pub trait UnsignedNumber:
   + ConvertableTo<f32>
   + ConvertableTo<f64>
 {
+  const ZERO: Self;
+  const ONE: Self;
+  const TEN: Self;
+
   fn try_add(self, other: Self) -> Result<Self, OperationError>;
   fn try_mul(self, other: Self) -> Result<Self, OperationError>;
   fn try_from_f32(value: f32) -> Result<Self, OperationError>;
@@ -31,6 +33,10 @@ pub trait UnsignedNumber:
 }
 
 impl UnsignedNumber for u128 {
+  const ZERO: Self = 0;
+  const ONE: Self = 1;
+  const TEN: Self = 10;
+
   fn try_add(self, other: Self) -> Result<Self, OperationError> {
     match self.checked_add(other) {
       Some(number) => Ok(number),
@@ -80,6 +86,10 @@ impl UnsignedNumber for u128 {
 }
 
 impl UnsignedNumber for u64 {
+  const ZERO: Self = 0;
+  const ONE: Self = 1;
+  const TEN: Self = 10;
+
   fn try_add(self, other: Self) -> Result<Self, OperationError> {
     match self.checked_add(other) {
       Some(number) => Ok(number),
@@ -134,6 +144,10 @@ impl UnsignedNumber for u64 {
 }
 
 impl UnsignedNumber for u32 {
+  const ZERO: Self = 0;
+  const ONE: Self = 1;
+  const TEN: Self = 10;
+
   fn try_add(self, other: Self) -> Result<Self, OperationError> {
     match self.checked_add(other) {
       Some(number) => Ok(number),
@@ -188,6 +202,10 @@ impl UnsignedNumber for u32 {
 }
 
 impl UnsignedNumber for u16 {
+  const ZERO: Self = 0;
+  const ONE: Self = 1;
+  const TEN: Self = 10;
+
   fn try_add(self, other: Self) -> Result<Self, OperationError> {
     match self.checked_add(other) {
       Some(number) => Ok(number),
@@ -244,6 +262,10 @@ impl UnsignedNumber for u16 {
 }
 
 impl UnsignedNumber for u8 {
+  const ZERO: Self = 0;
+  const ONE: Self = 1;
+  const TEN: Self = 10;
+
   fn try_add(self, other: Self) -> Result<Self, OperationError> {
     match self.checked_add(other) {
       Some(number) => Ok(number),
