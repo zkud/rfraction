@@ -57,3 +57,18 @@ fn it_convertable_from_the_string_type() {
   let number = Fraction::<u128>::try_from("1e-5").unwrap();
   assert_eq!(number, Fraction::<u128>::new(Sign::Positive, 1, 100000));
 }
+
+#[test]
+fn it_convertable_to_decimal() {
+  let number = Fraction::<u128>::new(Sign::Positive, 4, 3);
+  assert_eq!(
+    number.to_decimal(5),
+    Fraction::<u128>::new(Sign::Positive, 133333, 100000)
+  );
+
+  let number = Fraction::<u128>::new(Sign::Negative, 1, 6);
+  assert_eq!(
+    number.to_decimal(5),
+    Fraction::<u128>::new(Sign::Negative, 16666, 100000)
+  );
+}

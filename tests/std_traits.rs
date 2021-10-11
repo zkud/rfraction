@@ -46,6 +46,13 @@ fn it_is_displayable() {
   assert_eq!(String::from("+10/3"), format!("{}", positive));
   assert_eq!(String::from("-3/10"), format!("{}", negative));
   assert_eq!(String::from("0"), format!("{}", zero));
+
+  let simple_ratio = Fraction::<u32>::new(Sign::Positive, 1, 3);
+  assert_eq!(String::from("0.33333"), format!("{:.5}", simple_ratio));
+  assert_eq!(
+    String::from("-0.33333"),
+    format!("{:.5}", simple_ratio.neg())
+  );
 }
 
 #[test]

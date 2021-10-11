@@ -111,6 +111,18 @@ impl<N: UnsignedNumber> Fraction<N> {
     }
   }
 
+  pub fn remainder(&self) -> Fraction<N> {
+    Fraction {
+      numerator: self.numerator() % self.denominator(),
+      denominator: self.denominator(),
+      sign: self.sign(),
+    }
+  }
+
+  pub fn trunc(&self) -> N {
+    self.numerator() / self.denominator()
+  }
+
   pub fn numerator(&self) -> N {
     self.numerator.clone()
   }
@@ -147,6 +159,45 @@ impl<N: UnsignedNumber> Fraction<N> {
     self.numerator() == N::ZERO && self.denominator() != N::ZERO
   }
 
+  pub fn to_decimal(&self, precision: usize) -> Fraction<N> {
+    self.try_to_decimal(precision).unwrap()
+  }
+
+  pub fn try_to_decimal(&self, precision: usize) -> Result<Fraction<N>, OperationError> {
+    if self.is_zero() {
+      Ok(Fraction::new_zero())
+    } else {
+      let mut new_numerator = N::ZERO;
+      let mut new_denominator = N::ONE;
+
+      let mut remainder = self.abs().remainder();
+      for _ in 0..precision {
+        if !remainder.is_zero() {
+          let bigger_numerator = remainder.numerator().try_mul(N::TEN)?;
+          let digit = bigger_numerator.clone() / remainder.denominator();
+
+          new_numerator = new_numerator.try_mul(N::TEN)?.try_add(digit.clone())?;
+          new_denominator = new_denominator.try_mul(N::TEN)?;
+
+          remainder = Fraction::new(
+            Sign::Positive,
+            bigger_numerator.clone() - remainder.denominator() * digit,
+            remainder.denominator(),
+          );
+        } else {
+          new_numerator = new_numerator.try_mul(N::TEN)?;
+          new_denominator = new_denominator.try_mul(N::TEN)?;
+        }
+      }
+
+      Fraction::try_new(self.sign(), new_numerator, new_denominator)?.try_add(&Fraction::try_new(
+        self.sign(),
+        self.trunc(),
+        N::ONE,
+      )?)
+    }
+  }
+
   pub fn to_number<F>(&self) -> F
   where
     F: ops::Div<F, Output = F> + ops::Neg<Output = F>,
@@ -159,6 +210,14 @@ impl<N: UnsignedNumber> Fraction<N> {
       numerator / denominator
     } else {
       -numerator / denominator
+    }
+  }
+
+  pub fn to_ratio_string(&self) -> String {
+    if self.is_zero() {
+      format!("0")
+    } else {
+      format!("{}{}/{}", self.sign(), self.numerator(), self.denominator(),)
     }
   }
 
@@ -253,6 +312,32 @@ impl<N: UnsignedNumber> Fraction<N> {
       sign: self.sign,
     })
   }
+
+  #[inline]
+  fn get_remainder_decimal_string(&self, precision: usize) -> String {
+    let mut remainder_decimal_string = String::default();
+
+    let mut remainder = self.abs().remainder();
+    for _ in 0..precision {
+      if !remainder.is_zero() {
+        let bigger_numerator = remainder.numerator() * N::TEN;
+
+        let digit = bigger_numerator.clone() / remainder.denominator();
+
+        remainder_decimal_string.push_str(&format!("{}", digit));
+
+        remainder = Fraction::new(
+          Sign::Positive,
+          bigger_numerator.clone() - remainder.denominator() * digit,
+          remainder.denominator(),
+        );
+      } else {
+        remainder_decimal_string.push_str("0");
+      }
+    }
+
+    remainder_decimal_string
+  }
 }
 
 impl<N: UnsignedNumber> PartialEq for Fraction<N> {
@@ -318,17 +403,19 @@ impl<N: UnsignedNumber> fmt::Debug for Fraction<N> {
 }
 
 impl<N: UnsignedNumber> fmt::Display for Fraction<N> {
-  fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-    if self.is_zero() {
-      write!(f, "0")
-    } else {
+  fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+    if let Some(precision) = formatter.precision() {
+      if self.is_negative() {
+        write!(formatter, "-")?;
+      }
+      write!(formatter, "{}.", self.abs().trunc())?;
       write!(
-        f,
-        "{}{}/{}",
-        self.sign(),
-        self.numerator(),
-        self.denominator(),
+        formatter,
+        "{}",
+        self.get_remainder_decimal_string(precision)
       )
+    } else {
+      write!(formatter, "{}", self.to_ratio_string())
     }
   }
 }
