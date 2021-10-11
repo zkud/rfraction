@@ -215,7 +215,7 @@ impl<N: UnsignedNumber> Fraction<N> {
 
   pub fn to_ratio_string(&self) -> String {
     if self.is_zero() {
-      format!("0")
+      "0".to_string()
     } else {
       format!("{}{}/{}", self.sign(), self.numerator(), self.denominator(),)
     }
@@ -332,7 +332,7 @@ impl<N: UnsignedNumber> Fraction<N> {
           remainder.denominator(),
         );
       } else {
-        remainder_decimal_string.push_str("0");
+        remainder_decimal_string.push('0');
       }
     }
 
