@@ -1,5 +1,7 @@
 use rfraction::Fraction;
 use rfraction::Sign;
+use std::collections::hash_map;
+use std::hash::{Hash, Hasher};
 
 #[test]
 fn with_different_signes_it_compares() {
@@ -79,4 +81,25 @@ fn it_is_debuggable() {
 fn it_could_give_a_default_value() {
   let default_value: Fraction<u128> = Default::default();
   assert!(default_value.is_zero());
+}
+
+#[test]
+fn it_hashable() {
+  fn get_hash<T: Hash>(hashable: &T) -> u64 {
+    let mut hasher = hash_map::DefaultHasher::new();
+    hashable.hash(&mut hasher);
+    hasher.finish()
+  }
+
+  let number_a: Fraction<u32> = Fraction::new_natural(10);
+  let number_b: Fraction<u32> = Fraction::new(Sign::Negative, 1, 10);
+  let zero: Fraction<u32> = Fraction::new_zero();
+
+  assert_eq!(get_hash(&number_a), get_hash(&number_a));
+  assert_eq!(get_hash(&number_b), get_hash(&number_b));
+  assert_eq!(get_hash(&zero), get_hash(&zero));
+
+  assert_ne!(get_hash(&number_a), get_hash(&number_b));
+  assert_ne!(get_hash(&zero), get_hash(&number_a));
+  assert_ne!(get_hash(&zero), get_hash(&number_b));
 }
