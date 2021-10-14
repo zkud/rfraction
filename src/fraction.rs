@@ -3,13 +3,14 @@ use super::operation_error::OperationError;
 use super::operation_error::OperationErrorType;
 use super::sign::Sign;
 use super::unsigned_number::UnsignedNumber;
+use serde;
 use std::cmp;
 use std::convert;
 use std::fmt;
 use std::hash;
 use std::ops;
 
-#[derive(Clone, Eq)]
+#[derive(Clone, Eq, serde::Serialize, serde::Deserialize)]
 pub struct Fraction<N: UnsignedNumber> {
   numerator: N,
   denominator: N,

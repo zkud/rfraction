@@ -12,3 +12,7 @@ categories = ["data-structures", "algorithms"]
 
 [dev-dependencies]
 version-sync = "0.9"
+serde_json = "1.0"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }

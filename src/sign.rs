@@ -1,8 +1,11 @@
+use serde;
 use std::fmt;
 
-#[derive(fmt::Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[derive(fmt::Debug, Copy, Clone, Hash, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum Sign {
+  #[serde(rename = "+")]
   Positive,
+  #[serde(rename = "-")]
   Negative,
 }
 
