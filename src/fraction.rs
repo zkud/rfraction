@@ -3,7 +3,6 @@ use super::operation_error::OperationError;
 use super::operation_error::OperationErrorType;
 use super::sign::Sign;
 use super::unsigned_number::UnsignedNumber;
-use serde;
 use std::cmp;
 use std::convert;
 use std::fmt;
