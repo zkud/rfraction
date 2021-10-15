@@ -1,4 +1,3 @@
-use super::convertable_to::ConvertableTo;
 use super::OperationError;
 use super::OperationErrorType;
 use std::fmt;
@@ -19,8 +18,6 @@ pub trait UnsignedNumber:
   + ops::Mul<Output = Self>
   + ops::Div<Output = Self>
   + ops::Rem<Output = Self>
-  + ConvertableTo<f32>
-  + ConvertableTo<f64>
 {
   const ZERO: Self;
   const ONE: Self;
