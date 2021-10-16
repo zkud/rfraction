@@ -1,15 +1,18 @@
+#[cfg(feature = "convertions")]
 use super::convertable_to::ConvertableTo;
 use super::operation_error::OperationError;
 use super::operation_error::OperationErrorType;
 use super::sign::Sign;
 use super::unsigned_number::UnsignedNumber;
 use std::cmp;
+#[cfg(feature = "convertions")]
 use std::convert;
 use std::fmt;
 use std::hash;
 use std::ops;
 
-#[derive(Clone, Eq, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Eq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Fraction<N: UnsignedNumber> {
   numerator: N,
   denominator: N,
@@ -159,10 +162,12 @@ impl<N: UnsignedNumber> Fraction<N> {
     self.numerator() == N::ZERO && self.denominator() != N::ZERO
   }
 
+  #[cfg(feature = "convertions")]
   pub fn to_decimal(&self, precision: usize) -> Fraction<N> {
     self.try_to_decimal(precision).unwrap()
   }
 
+  #[cfg(feature = "convertions")]
   pub fn try_to_decimal(&self, precision: usize) -> Result<Fraction<N>, OperationError> {
     if self.is_zero() {
       Ok(Fraction::new_zero())
@@ -198,6 +203,7 @@ impl<N: UnsignedNumber> Fraction<N> {
     }
   }
 
+  #[cfg(feature = "convertions")]
   pub fn to_number<F>(&self) -> F
   where
     F: ops::Div<F, Output = F> + ops::Neg<Output = F>,
@@ -210,14 +216,6 @@ impl<N: UnsignedNumber> Fraction<N> {
       numerator / denominator
     } else {
       -numerator / denominator
-    }
-  }
-
-  pub fn to_ratio_string(&self) -> String {
-    if self.is_zero() {
-      "0".to_string()
-    } else {
-      format!("{}{}/{}", self.sign(), self.numerator(), self.denominator(),)
     }
   }
 
@@ -311,6 +309,15 @@ impl<N: UnsignedNumber> Fraction<N> {
       denominator,
       sign: self.sign,
     })
+  }
+
+  #[inline]
+  fn to_ratio_string(&self) -> String {
+    if self.is_zero() {
+      "0".to_string()
+    } else {
+      format!("{}{}/{}", self.sign(), self.numerator(), self.denominator(),)
+    }
   }
 
   #[inline]
@@ -538,18 +545,21 @@ impl<N: UnsignedNumber> ops::DivAssign<Self> for Fraction<N> {
   }
 }
 
+#[cfg(feature = "convertions")]
 impl<N: UnsignedNumber> From<N> for Fraction<N> {
   fn from(number: N) -> Fraction<N> {
     Fraction::new_natural(number)
   }
 }
 
+#[cfg(feature = "convertions")]
 impl<N: UnsignedNumber> From<&N> for Fraction<N> {
   fn from(number: &N) -> Fraction<N> {
     Fraction::new_natural(number.clone())
   }
 }
 
+#[cfg(feature = "convertions")]
 impl<N: UnsignedNumber> convert::TryFrom<f32> for Fraction<N> {
   type Error = OperationError;
 
@@ -573,6 +583,7 @@ impl<N: UnsignedNumber> convert::TryFrom<f32> for Fraction<N> {
   }
 }
 
+#[cfg(feature = "convertions")]
 impl<N: UnsignedNumber> convert::TryFrom<f64> for Fraction<N> {
   type Error = OperationError;
 
@@ -596,6 +607,7 @@ impl<N: UnsignedNumber> convert::TryFrom<f64> for Fraction<N> {
   }
 }
 
+#[cfg(feature = "convertions")]
 impl<N: UnsignedNumber> convert::TryFrom<&str> for Fraction<N> {
   type Error = OperationError;
 

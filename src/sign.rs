@@ -1,10 +1,11 @@
 use std::fmt;
 
-#[derive(fmt::Debug, Copy, Clone, Hash, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+#[derive(fmt::Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum Sign {
-  #[serde(rename = "+")]
+  #[cfg_attr(feature = "serde", serde(rename = "+"))]
   Positive,
-  #[serde(rename = "-")]
+  #[cfg_attr(feature = "serde", serde(rename = "-"))]
   Negative,
 }
 

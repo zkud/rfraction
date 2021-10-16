@@ -14,5 +14,8 @@ categories = ["data-structures", "algorithms"]
 version-sync = "0.9"
 serde_json = "1.0"
 
+[features]
+convertions = []
+
 [dependencies]
-serde = { version = "1.0", features = ["derive"] }
+serde = { version = "1.0", features = ["derive"], optional = true }
