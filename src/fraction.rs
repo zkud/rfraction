@@ -297,7 +297,7 @@ impl<N: UnsignedNumber> Fraction<N> {
       }
       _ => Ok((
         simplified_self.mul_with_number(simplified_other.denominator.clone())?,
-        simplified_other.mul_with_number(simplified_self.denominator.clone())?,
+        simplified_other.mul_with_number(simplified_self.denominator)?,
       )),
     }
   }
