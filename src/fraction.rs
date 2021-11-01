@@ -265,9 +265,7 @@ impl<N: UnsignedNumber> Fraction<N> {
   }
 
   #[cfg(feature = "convertions")]
-  pub fn try_from_float_number<F: FloatNumber>(
-    number: F,
-  ) -> Result<Fraction<N>, OperationError> {
+  pub fn try_from_float_number<F: FloatNumber>(number: F) -> Result<Fraction<N>, OperationError> {
     if number.is_nan() || number.is_infinite() {
       return Err(OperationError::new(
         "Invalid input number",
@@ -275,17 +273,15 @@ impl<N: UnsignedNumber> Fraction<N> {
       ));
     }
 
-		let integer_part = Fraction::try_get_integer_part(number.clone())?;
-		let float_part = Fraction::try_get_float_part(number.clone())?;
+    let integer_part = Fraction::try_get_integer_part(number.clone())?;
+    let float_part = Fraction::try_get_float_part(number.clone())?;
 
     integer_part.try_add(&float_part)
   }
 
   #[cfg(feature = "convertions")]
   #[inline]
-  fn try_get_integer_part<F: FloatNumber>(
-    number: F,
-  ) -> Result<Fraction<N>, OperationError> {
+  fn try_get_integer_part<F: FloatNumber>(number: F) -> Result<Fraction<N>, OperationError> {
     let sign = if number > F::EPSILON {
       Sign::Positive
     } else {
@@ -302,13 +298,11 @@ impl<N: UnsignedNumber> Fraction<N> {
     }
 
     Fraction::try_new(sign, numerator, N::ONE)
-	}
+  }
 
   #[cfg(feature = "convertions")]
   #[inline]
-  fn try_get_float_part<F: FloatNumber>(
-    number: F,
-  ) -> Result<Fraction<N>, OperationError> {
+  fn try_get_float_part<F: FloatNumber>(number: F) -> Result<Fraction<N>, OperationError> {
     let sign = if number > F::EPSILON {
       Sign::Positive
     } else {
@@ -329,7 +323,7 @@ impl<N: UnsignedNumber> Fraction<N> {
     }
 
     Fraction::try_new(sign, numerator, denominator)
-	}
+  }
 
   #[inline]
   fn simplify(mut self) -> Fraction<N> {
