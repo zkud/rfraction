@@ -60,6 +60,18 @@ impl<N: UnsignedNumber> Fraction<N> {
     }
   }
 
+  pub fn numerator(&self) -> N {
+    self.numerator.clone()
+  }
+
+  pub fn denominator(&self) -> N {
+    self.denominator.clone()
+  }
+
+  pub fn sign(&self) -> Sign {
+    self.sign
+  }
+
   pub fn abs(&self) -> Fraction<N> {
     self.try_abs().unwrap()
   }
@@ -166,18 +178,6 @@ impl<N: UnsignedNumber> Fraction<N> {
     self.numerator() / self.denominator()
   }
 
-  pub fn numerator(&self) -> N {
-    self.numerator.clone()
-  }
-
-  pub fn denominator(&self) -> N {
-    self.denominator.clone()
-  }
-
-  pub fn sign(&self) -> Sign {
-    self.sign
-  }
-
   pub fn is_negative(&self) -> bool {
     if self.is_zero() {
       false
@@ -266,7 +266,7 @@ impl<N: UnsignedNumber> Fraction<N> {
 
   #[cfg(feature = "convertions")]
   pub fn try_from_float_number<F: FloatNumber>(
-    mut number: F,
+    number: F,
   ) -> Result<Fraction<N>, OperationError> {
     if number.is_nan() || number.is_infinite() {
       return Err(OperationError::new(
@@ -275,37 +275,61 @@ impl<N: UnsignedNumber> Fraction<N> {
       ));
     }
 
+		let integer_part = Fraction::try_get_integer_part(number.clone())?;
+		let float_part = Fraction::try_get_float_part(number.clone())?;
+
+    integer_part.try_add(&float_part)
+  }
+
+  #[cfg(feature = "convertions")]
+  #[inline]
+  fn try_get_integer_part<F: FloatNumber>(
+    number: F,
+  ) -> Result<Fraction<N>, OperationError> {
     let sign = if number > F::EPSILON {
       Sign::Positive
     } else {
       Sign::Negative
     };
-    number = number.abs();
 
+    let mut integer_part = number.abs().trunc();
     let mut numerator: N = N::ZERO;
-    let mut integer_part = number.trunc();
+
     while integer_part > F::EPSILON {
       numerator = numerator.try_mul(N::TEN)?;
       numerator = numerator.try_add(N::from(integer_part.rem_euclid(F::TEN).to_u8()))?;
       integer_part = (integer_part / F::TEN).trunc();
     }
-    let integer_part = Fraction::try_new(sign, numerator, N::ONE)?;
+
+    Fraction::try_new(sign, numerator, N::ONE)
+	}
+
+  #[cfg(feature = "convertions")]
+  #[inline]
+  fn try_get_float_part<F: FloatNumber>(
+    number: F,
+  ) -> Result<Fraction<N>, OperationError> {
+    let sign = if number > F::EPSILON {
+      Sign::Positive
+    } else {
+      Sign::Negative
+    };
 
     let mut denominator = N::ONE;
     let mut numerator: N = N::ZERO;
-    let mut fraction_part = number.fract();
+    let mut float_part = number.abs().fract();
     let mut zero_value = F::EPSILON;
-    while fraction_part.abs() > zero_value {
+
+    while float_part.abs() > zero_value {
       numerator = numerator.try_mul(N::TEN)?;
-      numerator = numerator.try_add(N::from((fraction_part.clone() * F::TEN).trunc().to_u8()))?;
+      numerator = numerator.try_add(N::from((float_part.clone() * F::TEN).trunc().to_u8()))?;
       denominator = denominator.try_mul(N::TEN)?;
-      fraction_part = (fraction_part.clone() * F::TEN).fract();
+      float_part = (float_part.clone() * F::TEN).fract();
       zero_value = F::TEN * zero_value;
     }
-    let fraction_part = Fraction::try_new(sign, numerator, denominator)?;
 
-    integer_part.try_add(&fraction_part)
-  }
+    Fraction::try_new(sign, numerator, denominator)
+	}
 
   #[inline]
   fn simplify(mut self) -> Fraction<N> {

@@ -32,6 +32,11 @@ fn it_convertable_from_the_f32_type() {
   // No need to use epsilon here as it unlikely to implement very
   // consise methods of convertion
   assert!((3.14f32 - number.to_number::<f32>()) < 0.0001);
+
+  let neg_number = Fraction::<u128>::try_from(-3.1438f32).unwrap();
+  // No need to use epsilon here as it unlikely to implement very
+  // consise methods of convertion
+  assert!((-3.1438f32 - neg_number.to_number::<f32>()) < 0.0001);
 }
 
 #[test]
@@ -40,6 +45,11 @@ fn it_convertable_from_the_f64_type() {
   // No need to use epsilon here as it unlikely to implement very
   // consise methods of convertion
   assert!((3.1438f64 - number.to_number::<f64>()) < 0.0001);
+
+  let neg_number = Fraction::<u128>::try_from(-3.1438f64).unwrap();
+  // No need to use epsilon here as it unlikely to implement very
+  // consise methods of convertion
+  assert!((-3.1438f64 - neg_number.to_number::<f64>()) < 0.0001);
 }
 
 #[test]
