@@ -20,6 +20,44 @@ pub struct Fraction<N: UnsignedNumber> {
 }
 
 impl<N: UnsignedNumber> Fraction<N> {
+  pub fn new(sign: Sign, numerator: N, denominator: N) -> Fraction<N> {
+    Fraction::try_new(sign, numerator, denominator).unwrap()
+  }
+
+  pub fn try_new(sign: Sign, numerator: N, denominator: N) -> Result<Fraction<N>, OperationError> {
+    if denominator == N::ZERO {
+      Err(OperationError::new(
+        "Denominator can not be zero",
+        OperationErrorType::DivisionByZero,
+      ))
+    } else {
+      Ok(
+        Fraction {
+          numerator,
+          denominator,
+          sign,
+        }
+        .simplify(),
+      )
+    }
+  }
+
+  pub fn new_zero() -> Fraction<N> {
+    Fraction {
+      numerator: N::ZERO,
+      denominator: N::ONE,
+      sign: Sign::Positive,
+    }
+  }
+
+  pub fn new_natural(value: N) -> Fraction<N> {
+    Fraction {
+      numerator: value,
+      denominator: N::ONE,
+      sign: Sign::Positive,
+    }
+  }
+
   pub fn abs(&self) -> Fraction<N> {
     self.try_abs().unwrap()
   }
@@ -219,44 +257,6 @@ impl<N: UnsignedNumber> Fraction<N> {
     }
   }
 
-  pub fn new(sign: Sign, numerator: N, denominator: N) -> Fraction<N> {
-    Fraction::try_new(sign, numerator, denominator).unwrap()
-  }
-
-  pub fn try_new(sign: Sign, numerator: N, denominator: N) -> Result<Fraction<N>, OperationError> {
-    if denominator == N::ZERO {
-      Err(OperationError::new(
-        "Denominator can not be zero",
-        OperationErrorType::DivisionByZero,
-      ))
-    } else {
-      Ok(
-        Fraction {
-          numerator,
-          denominator,
-          sign,
-        }
-        .simplify(),
-      )
-    }
-  }
-
-  pub fn new_zero() -> Fraction<N> {
-    Fraction {
-      numerator: N::ZERO,
-      denominator: N::ONE,
-      sign: Sign::Positive,
-    }
-  }
-
-  pub fn new_natural(value: N) -> Fraction<N> {
-    Fraction {
-      numerator: value,
-      denominator: N::ONE,
-      sign: Sign::Positive,
-    }
-  }
-
   #[inline]
   fn simplify(mut self) -> Fraction<N> {
     if !self.is_zero() {
@@ -282,19 +282,22 @@ impl<N: UnsignedNumber> Fraction<N> {
 
   #[inline]
   fn unify(&self, other: &Fraction<N>) -> Result<(Fraction<N>, Fraction<N>), OperationError> {
-    match self.denominator.clone() {
-      x if x == other.denominator => Ok((self.clone(), other.clone())),
-      x if other.denominator.clone() % x.clone() == N::ZERO => {
-        let scale = other.denominator.clone() / x;
-        Ok((self.mul_with_number(scale)?, other.clone()))
+    let simplified_self = self.clone().simplify();
+    let simplified_other = other.clone().simplify();
+
+    match simplified_self.denominator.clone() {
+      x if x == simplified_other.denominator => Ok((simplified_self, simplified_other)),
+      x if simplified_other.denominator.clone() % x.clone() == N::ZERO => {
+        let scale = simplified_other.denominator.clone() / x;
+        Ok((simplified_self.mul_with_number(scale)?, simplified_other))
       }
-      x if x.clone() % other.denominator.clone() == N::ONE => {
-        let scale = x / other.denominator.clone();
-        Ok((self.clone(), other.mul_with_number(scale)?))
+      x if x.clone() % simplified_other.denominator.clone() == N::ONE => {
+        let scale = x / simplified_other.denominator.clone();
+        Ok((simplified_self, simplified_other.mul_with_number(scale)?))
       }
       _ => Ok((
-        self.mul_with_number(other.denominator.clone())?,
-        other.mul_with_number(self.denominator.clone())?,
+        simplified_self.mul_with_number(simplified_other.denominator.clone())?,
+        simplified_other.mul_with_number(simplified_self.denominator.clone())?,
       )),
     }
   }
@@ -564,22 +567,43 @@ impl<N: UnsignedNumber> convert::TryFrom<f32> for Fraction<N> {
   type Error = OperationError;
 
   fn try_from(mut number: f32) -> Result<Self, Self::Error> {
-    let mut denominator: N = N::ONE;
-
-    for _ in 0..f32::MAX_10_EXP as usize {
-      denominator = denominator.try_mul(N::TEN)?;
-      number *= 10.0;
-
-      if number.abs().fract() < f32::EPSILON {
-        break;
-      }
+    if number.is_nan() || number.is_infinite() {
+      return Err(OperationError::new(
+        "Invalid input number",
+        OperationErrorType::ConvertionError,
+      ));
     }
 
-    if number < 0.0 {
-      Fraction::try_new(Sign::Negative, N::try_from_f32(number.abs())?, denominator)
+    let sign = if number > 0.0 {
+      Sign::Positive
     } else {
-      Fraction::try_new(Sign::Positive, N::try_from_f32(number.abs())?, denominator)
+      Sign::Negative
+    };
+    number = number.abs();
+
+    let mut numerator: N = N::ZERO;
+    let mut integer_part = number.trunc();
+    while integer_part > f32::EPSILON {
+      numerator = numerator.try_mul(N::TEN)?;
+      numerator = numerator.try_add(N::from(integer_part.rem_euclid(10.0) as u8))?;
+      integer_part = (integer_part / 10.0).trunc();
     }
+    let integer_part = Fraction::try_new(sign, numerator, N::ONE)?;
+
+    let mut denominator = N::ONE;
+    let mut numerator: N = N::ZERO;
+    let mut fraction_part = number.fract();
+    let mut zero_value = f32::EPSILON;
+    while fraction_part.abs() > zero_value {
+      numerator = numerator.try_mul(N::TEN)?;
+      numerator = numerator.try_add(N::from((fraction_part * 10.0).trunc() as u8))?;
+      denominator = denominator.try_mul(N::TEN)?;
+      fraction_part = (fraction_part * 10.0).fract();
+      zero_value *= 10.0;
+    }
+    let fraction_part = Fraction::try_new(sign, numerator, denominator)?;
+
+    integer_part.try_add(&fraction_part)
   }
 }
 
@@ -588,22 +612,43 @@ impl<N: UnsignedNumber> convert::TryFrom<f64> for Fraction<N> {
   type Error = OperationError;
 
   fn try_from(mut number: f64) -> Result<Self, Self::Error> {
-    let mut denominator: N = N::ONE;
-
-    for _ in 0..f64::MAX_10_EXP as usize {
-      denominator = denominator.try_mul(N::TEN)?;
-      number *= 10.0;
-
-      if number.abs().fract() < f64::EPSILON {
-        break;
-      }
+    if number.is_nan() || number.is_infinite() {
+      return Err(OperationError::new(
+        "Invalid input number",
+        OperationErrorType::ConvertionError,
+      ));
     }
 
-    if number < 0.0 {
-      Fraction::try_new(Sign::Negative, N::try_from_f64(number.abs())?, denominator)
+    let sign = if number > 0.0 {
+      Sign::Positive
     } else {
-      Fraction::try_new(Sign::Positive, N::try_from_f64(number.abs())?, denominator)
+      Sign::Negative
+    };
+    number = number.abs();
+
+    let mut numerator: N = N::ZERO;
+    let mut integer_part = number.trunc();
+    while integer_part > f64::EPSILON {
+      numerator = numerator.try_mul(N::TEN)?;
+      numerator = numerator.try_add(N::from(integer_part.rem_euclid(10.0) as u8))?;
+      integer_part = (integer_part / 10.0).trunc();
     }
+    let integer_part = Fraction::try_new(sign, numerator, N::ONE)?;
+
+    let mut denominator = N::ONE;
+    let mut numerator: N = N::ZERO;
+    let mut fraction_part = number.fract();
+    let mut zero_value = f64::EPSILON;
+    while fraction_part.abs() > zero_value {
+      numerator = numerator.try_mul(N::TEN)?;
+      numerator = numerator.try_add(N::from((fraction_part * 10.0).trunc() as u8))?;
+      denominator = denominator.try_mul(N::TEN)?;
+      fraction_part = (fraction_part * 10.0).fract();
+      zero_value *= 10.0;
+    }
+    let fraction_part = Fraction::try_new(sign, numerator, denominator)?;
+
+    integer_part.try_add(&fraction_part)
   }
 }
 

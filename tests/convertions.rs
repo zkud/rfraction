@@ -29,13 +29,17 @@ fn it_convertable_from_the_origin_type() {
 #[test]
 fn it_convertable_from_the_f32_type() {
   let number = Fraction::<u128>::try_from(3.14f32).unwrap();
-  assert_eq!(number, Fraction::<u128>::new(Sign::Positive, 314, 100));
+  // No need to use epsilon here as it unlikely to implement very
+  // consise methods of convertion
+  assert!((3.14f32 - number.to_number::<f32>()) < 0.0001);
 }
 
 #[test]
 fn it_convertable_from_the_f64_type() {
   let number = Fraction::<u128>::try_from(3.1438f64).unwrap();
-  assert_eq!(number, Fraction::<u128>::new(Sign::Positive, 31438, 10000));
+  // No need to use epsilon here as it unlikely to implement very
+  // consise methods of convertion
+  assert!((3.1438f64 - number.to_number::<f64>()) < 0.0001);
 }
 
 #[test]
