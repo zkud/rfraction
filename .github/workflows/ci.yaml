@@ -48,7 +48,6 @@ jobs:
         rustup component add rustfmt
         rustup component add clippy
         rustfmt --version
-        npm i
     - name: Formatting lint
       run: rustfmt ./src/lib.rs --check
     - name: Semantic lint
