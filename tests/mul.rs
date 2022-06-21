@@ -1,11 +1,13 @@
 use rfraction::Fraction;
+use rfraction::OperationErrorType;
+use rfraction::Sign;
 
 #[test]
 fn with_usual_u128_nums_mul_works() {
-  let first = Fraction::<u128>::new(13, 17, true);
-  let second = Fraction::<u128>::new(18, 19, false);
+  let first = Fraction::<u128>::new(Sign::Negative, 13, 17);
+  let second = Fraction::<u128>::new(Sign::Positive, 18, 19);
 
-  let result = first.mul(&second);
+  let result = first * second;
 
   assert!(result.is_negative());
   assert_eq!(result.numerator(), 234);
@@ -14,10 +16,10 @@ fn with_usual_u128_nums_mul_works() {
 
 #[test]
 fn with_usual_u64_nums_mul_works() {
-  let first = Fraction::<u64>::new(13, 17, true);
-  let second = Fraction::<u64>::new(18, 19, false);
+  let first = Fraction::<u64>::new(Sign::Negative, 13, 17);
+  let second = Fraction::<u64>::new(Sign::Positive, 18, 19);
 
-  let result = first.mul(&second);
+  let result = first * second;
 
   assert!(result.is_negative());
   assert_eq!(result.numerator(), 234);
@@ -26,10 +28,10 @@ fn with_usual_u64_nums_mul_works() {
 
 #[test]
 fn with_usual_u32_nums_mul_works() {
-  let first = Fraction::<u32>::new(13, 17, true);
-  let second = Fraction::<u32>::new(18, 19, false);
+  let first = Fraction::<u32>::new(Sign::Negative, 13, 17);
+  let second = Fraction::<u32>::new(Sign::Positive, 18, 19);
 
-  let result = first.mul(&second);
+  let result = first * second;
 
   assert!(result.is_negative());
   assert_eq!(result.numerator(), 234);
@@ -38,10 +40,10 @@ fn with_usual_u32_nums_mul_works() {
 
 #[test]
 fn with_usual_u16_nums_mul_works() {
-  let first = Fraction::<u16>::new(13, 17, true);
-  let second = Fraction::<u16>::new(18, 19, false);
+  let first = Fraction::<u16>::new(Sign::Negative, 13, 17);
+  let second = Fraction::<u16>::new(Sign::Positive, 18, 19);
 
-  let result = first.mul(&second);
+  let result = first * second;
 
   assert!(result.is_negative());
   assert_eq!(result.numerator(), 234);
@@ -50,10 +52,10 @@ fn with_usual_u16_nums_mul_works() {
 
 #[test]
 fn with_usual_u8_nums_mul_works() {
-  let first = Fraction::<u16>::new(13, 11, true);
-  let second = Fraction::<u16>::new(18, 19, false);
+  let first = Fraction::<u8>::new(Sign::Negative, 13, 11);
+  let second = Fraction::<u8>::new(Sign::Positive, 18, 19);
 
-  let result = first.mul(&second);
+  let result = first * second;
 
   assert!(result.is_negative());
   assert_eq!(result.numerator(), 234);
@@ -61,81 +63,105 @@ fn with_usual_u8_nums_mul_works() {
 }
 
 #[test]
-fn with_nans_nums_mul_works() {
-  let nan_number = Fraction::<u128>::new_nan();
-  let default_number = Fraction::<u128>::new_natural(123);
-  let inf = Fraction::<u128>::new_positive_infinity();
-
-  let result = nan_number.mul(&nan_number);
-  assert!(result.is_nan());
-
-  let result = nan_number.mul(&default_number);
-  assert!(result.is_nan());
-
-  let result = default_number.mul(&nan_number);
-  assert!(result.is_nan());
-
-  let result = nan_number.mul(&nan_number);
-  assert!(result.is_nan());
-
-  let result = inf.mul(&nan_number);
-  assert!(result.is_nan());
-}
-
-#[test]
-fn with_infinities_nums_mul_works() {
-  let default_number = Fraction::<u128>::new_natural(123);
-  let positive_inf = Fraction::<u128>::new_positive_infinity();
-  let negative_inf = Fraction::<u128>::new_negative_infinity();
-
-  let result = default_number.mul(&positive_inf);
-  assert!(result.is_positive_infinity());
-
-  let result = default_number.mul(&negative_inf);
-  assert!(result.is_negative_infinity());
-
-  let result = positive_inf.mul(&negative_inf);
-  assert!(result.is_negative_infinity());
-
-  let result = positive_inf.mul(&positive_inf);
-  assert!(result.is_positive_infinity());
-
-  let result = negative_inf.mul(&negative_inf);
-  assert!(result.is_positive_infinity());
-}
-
-#[test]
 fn with_zeros_nums_mul_works() {
   let default_number = Fraction::<u128>::new_natural(123);
   let zero = Fraction::<u128>::new_zero();
-  let infinity = Fraction::<u128>::new_positive_infinity();
 
-  let result = default_number.mul(&zero);
+  let result = (&default_number) * (&zero);
   assert!(result.is_zero());
 
-  let result = zero.mul(&default_number);
+  let result = (&zero) * (&default_number);
   assert!(result.is_zero());
 
-  let result = zero.mul(&zero);
+  let result = (&zero) * (&zero);
   assert!(result.is_zero());
-
-  let result = zero.mul(&infinity);
-  assert!(result.is_nan());
 }
 
 #[test]
+#[should_panic]
 fn with_overflowing_nums_mul_works() {
-  let first = Fraction::<u8>::new(150, 1, false);
-  let second = Fraction::<u8>::new(150, 1, false);
+  let first = Fraction::<u8>::new_natural(150);
+  let second = Fraction::<u8>::new_natural(150);
 
-  let result = first.mul(&second);
+  first.mul(&second);
+}
 
-  assert!(result.is_nan());
+#[test]
+fn with_operator_overloads_it_works() {
+  let first = Fraction::<u128>::new_natural(1);
+  let second = Fraction::<u128>::new_natural(18);
 
-  let first = Fraction::<u8>::new(1, 150, false);
-  let second = Fraction::<u8>::new(1, 13, false);
+  let mut result = &first * &second;
+  assert_eq!(result, Fraction::new_natural(18));
 
-  let result = first.mul(&second);
+  result *= &second;
+  assert_eq!(result, Fraction::new_natural(324));
 
-  assert!(result.is_nan());
+  result *= second;
+  assert_eq!(result, Fraction::new_natural(5832));
+}
+
+#[test]
+fn its_possible_to_handle_an_overflow_with_u8() {
+  let first = Fraction::<u8>::new_natural(150);
+  let second = Fraction::<u8>::new_natural(150);
+
+  match first.try_mul(&second) {
+    Err(error) => {
+      assert_eq!(error.error_type(), OperationErrorType::Overflow);
+    }
+    _ => panic!("It's impossible to handle an overflow"),
+  }
+}
+
+#[test]
+fn its_possible_to_handle_an_overflow_with_u16() {
+  let first = Fraction::<u16>::new_natural(u16::MAX - 1);
+  let second = Fraction::<u16>::new_natural(u16::MAX - 1);
+
+  match first.try_mul(&second) {
+    Err(error) => {
+      assert_eq!(error.error_type(), OperationErrorType::Overflow);
+    }
+    _ => panic!("It's impossible to handle an overflow"),
+  }
+}
+
+#[test]
+fn its_possible_to_handle_an_overflow_with_u32() {
+  let first = Fraction::<u32>::new_natural(u32::MAX - 1);
+  let second = Fraction::<u32>::new_natural(u32::MAX - 1);
+
+  match first.try_mul(&second) {
+    Err(error) => {
+      assert_eq!(error.error_type(), OperationErrorType::Overflow);
+    }
+    _ => panic!("It's impossible to handle an overflow"),
+  }
+}
+
+#[test]
+fn its_possible_to_handle_an_overflow_with_u64() {
+  let first = Fraction::<u64>::new_natural(u64::MAX - 1);
+  let second = Fraction::<u64>::new_natural(u64::MAX - 1);
+
+  match first.try_mul(&second) {
+    Err(error) => {
+      assert_eq!(error.error_type(), OperationErrorType::Overflow);
+    }
+    _ => panic!("It's impossible to handle an overflow"),
+  }
+}
+
+#[test]
+fn its_possible_to_handle_an_overflow_with_u128() {
+  let first = Fraction::<u128>::new_natural(u128::MAX - 1);
+  let second = Fraction::<u128>::new_natural(u128::MAX - 1);
+
+  match first.try_mul(&second) {
+    Err(error) => {
+      assert_eq!(error.error_type(), OperationErrorType::Overflow);
+    }
+    _ => panic!("It's impossible to handle an overflow"),
+  }
 }

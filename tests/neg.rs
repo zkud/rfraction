@@ -1,8 +1,9 @@
 use rfraction::Fraction;
+use rfraction::Sign;
 
 #[test]
 fn with_usual_numbers_it_works() {
-  let number = Fraction::<u128>::new(1, 20, true);
+  let number = Fraction::<u128>::new(Sign::Negative, 1, 20);
 
   let abs = number.neg();
 
