@@ -1,13 +1,10 @@
-#[cfg(feature = "convertions")]
 use super::convertable_to::ConvertableTo;
-#[cfg(feature = "convertions")]
 use super::float_number::FloatNumber;
 use super::operation_error::OperationError;
 use super::operation_error::OperationErrorType;
 use super::sign::Sign;
 use super::unsigned_number::UnsignedNumber;
 use std::cmp;
-#[cfg(feature = "convertions")]
 use std::convert;
 use std::fmt;
 use std::hash;
@@ -202,12 +199,10 @@ impl<N: UnsignedNumber> Fraction<N> {
     self.numerator() == N::ZERO && self.denominator() != N::ZERO
   }
 
-  #[cfg(feature = "convertions")]
   pub fn to_decimal(&self, precision: usize) -> Fraction<N> {
     self.try_to_decimal(precision).unwrap()
   }
 
-  #[cfg(feature = "convertions")]
   pub fn try_to_decimal(&self, precision: usize) -> Result<Fraction<N>, OperationError> {
     if self.is_zero() {
       Ok(Fraction::new_zero())
@@ -243,7 +238,6 @@ impl<N: UnsignedNumber> Fraction<N> {
     }
   }
 
-  #[cfg(feature = "convertions")]
   pub fn to_number<F>(&self) -> F
   where
     F: ops::Div<F, Output = F> + ops::Neg<Output = F>,
@@ -259,12 +253,10 @@ impl<N: UnsignedNumber> Fraction<N> {
     }
   }
 
-  #[cfg(feature = "convertions")]
   pub fn from_float_number<F: FloatNumber + Into<u8>>(number: F) -> Fraction<N> {
     Fraction::try_from_float_number(number).unwrap()
   }
 
-  #[cfg(feature = "convertions")]
   pub fn try_from_float_number<F: FloatNumber>(number: F) -> Result<Fraction<N>, OperationError> {
     if number.is_nan() || number.is_infinite() {
       return Err(OperationError::new(
@@ -279,7 +271,6 @@ impl<N: UnsignedNumber> Fraction<N> {
     integer_part.try_add(&float_part)
   }
 
-  #[cfg(feature = "convertions")]
   #[inline]
   fn try_get_integer_part<F: FloatNumber>(number: F) -> Result<Fraction<N>, OperationError> {
     let sign = if number > F::EPSILON {
@@ -300,7 +291,6 @@ impl<N: UnsignedNumber> Fraction<N> {
     Fraction::try_new(sign, numerator, N::ONE)
   }
 
-  #[cfg(feature = "convertions")]
   #[inline]
   fn try_get_float_part<F: FloatNumber>(number: F) -> Result<Fraction<N>, OperationError> {
     let sign = if number > F::EPSILON {
@@ -616,21 +606,18 @@ impl<N: UnsignedNumber> ops::DivAssign<Self> for Fraction<N> {
   }
 }
 
-#[cfg(feature = "convertions")]
 impl<N: UnsignedNumber> From<N> for Fraction<N> {
   fn from(number: N) -> Fraction<N> {
     Fraction::new_natural(number)
   }
 }
 
-#[cfg(feature = "convertions")]
 impl<N: UnsignedNumber> From<&N> for Fraction<N> {
   fn from(number: &N) -> Fraction<N> {
     Fraction::new_natural(number.clone())
   }
 }
 
-#[cfg(feature = "convertions")]
 impl<N: UnsignedNumber> convert::TryFrom<f32> for Fraction<N> {
   type Error = OperationError;
 
@@ -639,7 +626,6 @@ impl<N: UnsignedNumber> convert::TryFrom<f32> for Fraction<N> {
   }
 }
 
-#[cfg(feature = "convertions")]
 impl<N: UnsignedNumber> convert::TryFrom<f64> for Fraction<N> {
   type Error = OperationError;
 
@@ -648,7 +634,6 @@ impl<N: UnsignedNumber> convert::TryFrom<f64> for Fraction<N> {
   }
 }
 
-#[cfg(feature = "convertions")]
 impl<N: UnsignedNumber> convert::TryFrom<&str> for Fraction<N> {
   type Error = OperationError;
 

@@ -1,5 +1,6 @@
 use rfraction::Fraction;
 use rfraction::Sign;
+#[cfg(feature = "serde")]
 use serde_json::{from_str, to_string};
 use std::convert::TryFrom;
 
@@ -89,6 +90,7 @@ fn it_convertable_to_decimal() {
 }
 
 #[test]
+#[cfg(feature = "serde")]
 fn it_supports_serde() {
   let number = Fraction::<u128>::new(Sign::Negative, 4, 3);
   let serialized_number = to_string(&number).unwrap();

@@ -1,7 +1,6 @@
 use std::fmt;
 use std::ops;
 
-#[cfg(feature = "convertions")]
 pub trait FloatNumber:
   fmt::Display
   + fmt::Debug

@@ -31,4 +31,4 @@ fn main() {
 
 ## License
 
-Rfraction is distributed under the terms the MIT license, please check the [LICENSE](https://github.com/zkud/rfraction/blob/main/LICENSE) for details.
+Rfraction is distributed under the terms the MIT license, please check the [LICENSE](./LICENSE) for details.
