@@ -43,3 +43,9 @@ impl<N: UnsignedNumber> Fraction<N> {
     }
   }
 }
+
+impl<N: UnsignedNumber> Default for Fraction<N> {
+  fn default() -> Fraction<N> {
+    Fraction::new_zero()
+  }
+}
