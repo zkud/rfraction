@@ -1,3 +1,4 @@
+use super::super::sign::Sign;
 use super::super::unsigned_number::UnsignedNumber;
 use super::super::OperationError;
 use super::Fraction;
@@ -9,34 +10,36 @@ impl<N: UnsignedNumber> Fraction<N> {
   }
 
   pub fn try_add(&self, other: &Self) -> Result<Self, OperationError> {
-    let (unified_self, unified_other) = self.unify(other)?;
+    let (this, other) = self.unify(other)?;
+    let sign = this.get_result_sign(&other);
+    let numerator = this.get_result_numerator(&other)?;
+    Fraction::try_new(sign, numerator, this.denominator)
+  }
 
-    if unified_self.sign == unified_other.sign {
-      return Fraction::try_new(
-        unified_self.sign,
-        unified_self
-          .numerator()
-          .try_add(unified_other.numerator())?,
-        unified_self.denominator,
-      );
-    }
-
-    if unified_self.numerator() == unified_other.numerator() {
-      return Ok(Fraction::new_zero());
-    }
-
-    if unified_self.numerator() > unified_other.numerator() {
-      Fraction::try_new(
-        unified_self.sign,
-        unified_self.numerator - unified_other.numerator,
-        unified_self.denominator,
-      )
+  #[inline]
+  fn get_result_sign(&self, other: &Fraction<N>) -> Sign {
+    if self.numerator() > other.numerator() {
+      self.sign()
     } else {
-      Fraction::try_new(
-        unified_other.sign,
-        unified_other.numerator - unified_self.numerator,
-        unified_self.denominator,
-      )
+      other.sign()
+    }
+  }
+
+  #[inline]
+  fn get_result_numerator(&self, other: &Fraction<N>) -> Result<N, OperationError> {
+    if self.sign() == other.sign() {
+      self.numerator().try_add(other.numerator())
+    } else {
+      Ok(Fraction::get_abs_numerator_difference(&self, &other))
+    }
+  }
+
+  #[inline]
+  fn get_abs_numerator_difference(&self, other: &Fraction<N>) -> N {
+    if self.numerator() > other.numerator() {
+      self.numerator() - other.numerator()
+    } else {
+      other.numerator() - self.numerator()
     }
   }
 }

@@ -11,20 +11,24 @@ impl<N: UnsignedNumber> Fraction<N> {
 
   pub fn try_new(sign: Sign, numerator: N, denominator: N) -> Result<Fraction<N>, OperationError> {
     if denominator == N::ZERO {
-      Err(OperationError::new(
+      return Err(OperationError::new(
         "Denominator can not be zero",
         OperationErrorType::DivisionByZero,
-      ))
-    } else {
-      Ok(
-        Fraction {
-          numerator,
-          denominator,
-          sign,
-        }
-        .simplify(),
-      )
+      ));
+    } 
+
+    if numerator == N::ZERO {
+      return Ok(Fraction::new_zero());
     }
+
+    Ok(
+      Fraction {
+        numerator,
+        denominator,
+        sign,
+      }
+      .simplify(),
+    )
   }
 
   pub fn new_zero() -> Fraction<N> {
