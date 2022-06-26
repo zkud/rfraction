@@ -9,10 +9,10 @@ impl<N: UnsignedNumber> Fraction<N> {
   }
 
   pub fn try_mul(&self, other: &Fraction<N>) -> Result<Fraction<N>, OperationError> {
+    let sign = self.sign.mul(&other.sign);
     let numerator = self.numerator().try_mul(other.numerator())?;
     let denominator = self.denominator().try_mul(other.denominator())?;
-
-    Fraction::try_new(self.sign.mul(&other.sign), numerator, denominator)
+    Fraction::try_new(sign, numerator, denominator)
   }
 }
 

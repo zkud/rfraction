@@ -15,7 +15,7 @@ impl<N: UnsignedNumber> Fraction<N> {
         "Denominator can not be zero",
         OperationErrorType::DivisionByZero,
       ));
-    } 
+    }
 
     if numerator == N::ZERO {
       return Ok(Fraction::new_zero());

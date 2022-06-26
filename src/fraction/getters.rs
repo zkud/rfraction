@@ -16,11 +16,11 @@ impl<N: UnsignedNumber> Fraction<N> {
   }
 
   pub fn remainder(&self) -> Fraction<N> {
-    Fraction {
-      numerator: self.numerator() % self.denominator(),
-      denominator: self.denominator(),
-      sign: self.sign(),
-    }
+    Fraction::new(
+      self.sign(),
+      self.numerator() % self.denominator(),
+      self.denominator(),
+    )
   }
 
   pub fn trunc(&self) -> N {

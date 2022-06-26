@@ -24,6 +24,6 @@ impl<N: UnsignedNumber> Fraction<N> {
   }
 
   pub fn is_zero(&self) -> bool {
-    self.numerator() == N::ZERO && self.denominator() != N::ZERO
+    self.numerator() == N::ZERO
   }
 }
