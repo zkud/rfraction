@@ -17,6 +17,11 @@ impl<N: UnsignedNumber> Fraction<N> {
   /// let another_number = Fraction::<u128>::new(sign.inverse(), numerator, denominator);
   /// assert_eq!(number.abs(), another_number.abs());
   /// ```
+  ///
+  /// ### Panics
+  ///
+  /// If there are some issues with the number,
+  /// for instance a zero denominator, it will panic
   pub fn abs(&self) -> Fraction<N> {
     self.try_abs().unwrap()
   }
@@ -37,7 +42,7 @@ impl<N: UnsignedNumber> Fraction<N> {
   ///
   /// ### Errors
   ///
-  /// If there are some issues with the number,
+  /// If there are some issues with the number, for instance a zero denominator,
   /// it will return a [`OperationError`]
   pub fn try_abs(&self) -> Result<Fraction<N>, OperationError> {
     Fraction::try_new(Sign::Positive, self.numerator(), self.denominator())
