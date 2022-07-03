@@ -12,9 +12,12 @@ impl<N: UnsignedNumber> Fraction<N> {
   /// ```rust
   /// use rfraction::{Fraction, Sign};
   /// let sign = Sign::Positive;
-  /// let numerator = 42;
-  /// let denominator = 15;
-  /// Fraction::<u128>::new(sign, numerator, denominator);
+  /// let numerator = 14;
+  /// let denominator = 5;
+  /// let number = Fraction::<u128>::new(sign, numerator, denominator);
+  /// assert_eq!(number.sign(), Sign::Positive);
+  /// assert_eq!(number.numerator(), numerator);
+  /// assert_eq!(number.denominator(), denominator);
   /// ```
   ///
   /// ### Panics
@@ -32,11 +35,9 @@ impl<N: UnsignedNumber> Fraction<N> {
   /// use rfraction::{Fraction, Sign};
   /// let sign = Sign::Positive;
   /// let numerator = 42;
-  /// let denominator = 0;
-  /// match Fraction::<u128>::try_new(sign, numerator, denominator) {
-  ///   Ok(number) => println!("{}", number),
-  ///   Err(error) => println!("{}", error)
-  /// };
+  /// let denominator = 0; // is incorrect
+  /// let maybe_number = Fraction::<u128>::try_new(sign, numerator, denominator);
+  /// assert!(matches!(maybe_number, OperationError));
   /// ```
   ///
   /// ### Errors
@@ -71,7 +72,8 @@ impl<N: UnsignedNumber> Fraction<N> {
   ///
   /// ```rust
   /// use rfraction::Fraction;
-  /// Fraction::<u128>::new_zero();
+  /// let number = Fraction::<u128>::new_zero();
+  /// assert!(number.is_zero());
   /// ```
   pub fn new_zero() -> Fraction<N> {
     Fraction {
@@ -88,7 +90,9 @@ impl<N: UnsignedNumber> Fraction<N> {
   /// ```rust
   /// use rfraction::Fraction;
   /// let value = 42;
-  /// Fraction::<u128>::new_natural(42);
+  /// let number = Fraction::<u128>::new_natural(value);
+  /// assert!(number.is_natural());
+  /// assert_eq!(number.numerator(), value);
   /// ```
   pub fn new_natural(value: N) -> Fraction<N> {
     Fraction {
