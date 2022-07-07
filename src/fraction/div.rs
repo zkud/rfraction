@@ -1,31 +1,63 @@
 use super::super::unsigned_number::UnsignedNumber;
 use super::super::OperationError;
-use super::super::OperationErrorType;
 use super::Fraction;
 use std::ops;
 
 impl<N: UnsignedNumber> Fraction<N> {
+  /// Divides a number by another number
+  ///
+  /// ### Examples
+  /// ```rust
+  /// use rfraction::{Fraction, Sign};
+  ///
+  /// let sign = Sign::Positive;
+  /// let numerator = 10;
+  /// let denominator = 140;
+  /// let a = Fraction::<u128>::new(sign, numerator, denominator);
+  /// let numerator = 15;
+  /// let denominator = 280;
+  /// let b = Fraction::<u128>::new(sign, numerator, denominator);
+  ///
+  /// let result = a.div(&b);
+  ///
+  /// assert!(result.is_positive());
+  /// assert_eq!(result.numerator(), 4);
+  /// assert_eq!(result.denominator(), 3);
+  /// ```
+  ///
+  /// ### Panics
+  ///
+  /// If some errors occur during division, for example the denominator is zero,
+  /// it will panic
   pub fn div(&self, other: &Fraction<N>) -> Fraction<N> {
     self.try_div(other).unwrap()
   }
 
+  /// Divides a number by another number  or could fail with an [`OperationError`]
+  ///
+  /// ### Examples
+  /// ```rust
+  /// use rfraction::{Fraction, Sign, OperationError};
+  ///
+  /// let sign = Sign::Positive;
+  /// let numerator = 10;
+  /// let denominator = 140;
+  /// let a = Fraction::<u8>::new(sign, numerator, denominator);
+  /// let numerator = 0;
+  /// let denominator = 14;
+  /// let b = Fraction::<u8>::new(sign, numerator, denominator);
+  ///
+  /// let result = a.add(&b);
+  ///
+  /// assert!(matches!(result, OperationError));
+  /// ```
+  ///
+  /// ### Errors
+  ///
+  /// If some errors occur during division, for example the denominator is zero,
+  /// it will return a [`OperationError`]
   pub fn try_div(&self, other: &Fraction<N>) -> Result<Fraction<N>, OperationError> {
     self.try_mul(&other.try_reverse()?)
-  }
-
-  pub fn reverse(&self) -> Fraction<N> {
-    self.try_reverse().unwrap()
-  }
-
-  pub fn try_reverse(&self) -> Result<Fraction<N>, OperationError> {
-    if self.is_zero() {
-      Err(OperationError::new(
-        "Numerator is zero, can't divide by zero",
-        OperationErrorType::DivisionByZero,
-      ))
-    } else {
-      Fraction::try_new(self.sign, self.denominator.clone(), self.numerator.clone())
-    }
   }
 }
 

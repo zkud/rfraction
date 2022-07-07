@@ -8,6 +8,7 @@ mod mul;
 mod neg;
 mod new;
 mod predicates;
+mod reverse;
 mod sub;
 
 use super::operation_error::OperationError;

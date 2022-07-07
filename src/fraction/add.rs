@@ -50,7 +50,7 @@ impl<N: UnsignedNumber> Fraction<N> {
   ///
   /// let result = a.add(&b);
   ///
-  /// assert!(matches!(result.is_positive(), OperationError));
+  /// assert!(matches!(result, OperationError));
   /// ```
   ///
   /// ### Errors
