@@ -4,7 +4,7 @@ use super::Fraction;
 
 impl<N: UnsignedNumber> Fraction<N> {
   /// Returns the numerator of a number
-  /// 
+  ///
   /// ### Examples
   ///
   /// ```rust
@@ -20,7 +20,7 @@ impl<N: UnsignedNumber> Fraction<N> {
   }
 
   /// Returns the denominator of a number
-  /// 
+  ///
   /// ### Examples
   ///
   /// ```rust
@@ -36,7 +36,7 @@ impl<N: UnsignedNumber> Fraction<N> {
   }
 
   /// Returns the sign of a number
-  /// 
+  ///
   /// ### Examples
   ///
   /// ```rust
@@ -52,7 +52,7 @@ impl<N: UnsignedNumber> Fraction<N> {
   }
 
   /// Returns the remainder of a number
-  /// 
+  ///
   /// ### Examples
   ///
   /// ```rust
@@ -75,7 +75,7 @@ impl<N: UnsignedNumber> Fraction<N> {
   }
 
   /// Returns a number with the remainder dropped
-  /// 
+  ///
   /// ### Examples
   ///
   /// ```rust
