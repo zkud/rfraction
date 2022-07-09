@@ -1,14 +1,15 @@
 use rfraction::Fraction;
+use rfraction::Sign;
 
 #[test]
 fn new_works() {
-  let number = Fraction::<u128>::new(123, 321, false);
-  assert_eq!(number.numerator(), 123);
-  assert_eq!(number.denominator(), 321);
+  let number = Fraction::<u128>::new(Sign::Positive, 123, 321);
+  assert_eq!(number.numerator(), 41);
+  assert_eq!(number.denominator(), 107);
   assert!(number.is_positive());
 
-  let number = Fraction::<u128>::new(777, 888, true);
-  assert_eq!(number.numerator(), 777);
-  assert_eq!(number.denominator(), 888);
+  let number = Fraction::<u128>::new(Sign::Negative, 777, 888);
+  assert_eq!(number.numerator(), 7);
+  assert_eq!(number.denominator(), 8);
   assert!(number.is_negative());
 }

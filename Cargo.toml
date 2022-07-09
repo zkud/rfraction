@@ -1,8 +1,18 @@
 [package]
 name = "rfraction"
 version = "0.1.0"
+authors = ["zkud <anton.kudyrka@gmail.com>"]
 edition = "2018"
+license = "MIT"
+repository = "https://github.com/zkud/rfraction"
+keywords = ["fraction", "float", "numeric"]
+description = "Rapid and clear to use fractional numbers crate for the Rust programming language"
+readme = "README.md"
+categories = ["data-structures", "algorithms"]
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[dev-dependencies]
+version-sync = "0.9"
+serde_json = "1.0"
 
 [dependencies]
+serde = { version = "1.0", features = ["derive"], optional = true }

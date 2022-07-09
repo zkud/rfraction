@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Build
-        run: cargo build
+        run: cargo build --all-features
 
   test:
     needs: build
@@ -35,7 +35,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Test
-        run: cargo test
+        run: cargo test --all-features
 
   lint:
     name: lint
@@ -48,7 +48,6 @@ jobs:
         rustup component add rustfmt
         rustup component add clippy
         rustfmt --version
-        npm i
     - name: Formatting lint
       run: rustfmt ./src/lib.rs --check
     - name: Semantic lint
@@ -73,7 +72,7 @@ jobs:
         uses: actions-rs/tarpaulin@v0.1
         with:
           version: '0.18.0'
-          args: '--ignore-tests -- --test-threads 4'
+          args: '--ignore-tests --all-features -- --test-threads 4'
 
       - name: Upload to codecov.io
         uses: codecov/codecov-action@v1.5.2
